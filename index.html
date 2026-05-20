@@ -260,13 +260,32 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
-  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;border-right:none;border-bottom:1px solid var(--border)}
-  .sidebar-logo{padding:10px 14px;border-bottom:none;border-right:1px solid var(--border);flex-direction:row;align-items:center;gap:10px;background:none}
-  .tgi-logo{height:32px}.logo-tagline{display:none}
+  #app{flex-direction:column}
+  .sidebar{
+    width:100%;height:auto;
+    position:sticky;top:0;z-index:200;
+    flex-direction:row;
+    border-right:none;border-bottom:1px solid var(--border);
+    /* reset desktop-only properties */
+    left:auto
+  }
+  .sidebar-logo{
+    padding:10px 14px;flex-shrink:0;
+    border-bottom:none;border-right:1px solid var(--border);
+    flex-direction:row;align-items:center;gap:8px;background:none
+  }
+  .tgi-logo{height:30px}
+  /* Nur TGI-Icon zeigen – Schriftzug und Tagline ausblenden */
+  .logo-wordmark,.logo-tagline{display:none}
   .sidebar-gold{display:none}
-  .sidebar-nav{flex-direction:row;padding:6px 8px;gap:2px;overflow-x:auto}
-  .nav-label{display:none}.nav-item{padding:8px 11px;gap:0}
-  #app{flex-direction:column}.main-area{margin-left:0}
+  .sidebar-nav{
+    flex:1;flex-direction:row;
+    padding:6px 8px;gap:2px;
+    overflow-x:auto;overflow-y:visible
+  }
+  .nav-label{display:none}
+  .nav-item{padding:9px 13px;gap:0;justify-content:center;flex:1;min-width:44px}
+  .main-area{margin-left:0}
 }
 @media print{body{background:#fff!important;color:#000!important}.no-print{display:none!important}}
 </style>
