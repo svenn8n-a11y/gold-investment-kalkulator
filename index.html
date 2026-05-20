@@ -1415,29 +1415,11 @@ function updateCharts(data, totalMo) {
   const disp   = lastDispData;
   const labels = disp.map(d=>d.label);
 
-  const bonusAnnotations = {};
-  disp.forEach((d, i) => {
-    if (d.pay30 > 0 || d.delivGrams > 0) {
-      bonusAnnotations[`bm${i}`] = {
-        type: 'line', scaleID: 'x', value: labels[i],
-        borderColor: 'rgba(240,192,64,0.5)', borderWidth: 1.5,
-        borderDash: [5,4],
-        label: {
-          content: 'Bonus', display: true,
-          backgroundColor: 'rgba(240,192,64,0.1)',
-          color: '#F0C040', font: { size: 9, weight: 'bold' },
-          position: 'start', yAdjust: 6
-        }
-      };
-    }
-  });
-
   const baseOpts = {
     responsive:true, maintainAspectRatio:true,
     plugins:{
       legend:{ labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }},
-      tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}},
-      annotation:{ annotations: bonusAnnotations }
+      tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}}
     },
     scales:{
       x:{ ticks:{ color:'#7C7670', maxRotation:45, font:{size:9}}, grid:{ color:'rgba(255,255,255,.04)'}},
@@ -1505,25 +1487,11 @@ function expandChart(id) {
   canvas.style.width  = '';
   canvas.style.height = isDoughnut ? '420px' : '400px';
 
-  // Bonus-Annotationen für Modal
-  const ann = {};
-  disp.forEach((d, i) => {
-    if (d.pay30 > 0 || d.delivGrams > 0) {
-      ann[`bm${i}`] = {
-        type:'line', scaleID:'x', value:labels[i],
-        borderColor:'rgba(240,192,64,0.5)', borderWidth:1.5, borderDash:[5,4],
-        label:{ content:'Bonus', display:true, backgroundColor:'rgba(240,192,64,0.1)',
-          color:'#F0C040', font:{size:10,weight:'bold'}, position:'start', yAdjust:6 }
-      };
-    }
-  });
-
   const base = {
     responsive:true, maintainAspectRatio:false,
     plugins:{
       legend:{ labels:{ color:'#7C7670', font:{size:12}, boxWidth:14 }},
-      tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}},
-      annotation:{ annotations: ann }
+      tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}}
     },
     scales:{
       x:{ ticks:{ color:'#7C7670', maxRotation:45, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
