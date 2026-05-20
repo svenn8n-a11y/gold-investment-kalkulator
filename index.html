@@ -189,14 +189,25 @@ select{
 @media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
 .chart-card{
   background:var(--card);backdrop-filter:blur(12px);border-radius:var(--radius);
-  border:1px solid var(--border);padding:18px;position:relative;overflow:hidden
+  border:1px solid var(--border);padding:18px;position:relative;
+  /* kein overflow:hidden – sonst blockiert es den horizontalen Scroll */
 }
 .chart-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,169,81,.24),transparent)
+  background:linear-gradient(90deg,transparent,rgba(200,169,81,.24),transparent);
+  z-index:1;pointer-events:none
 }
 .chart-title{font-size:10.5px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px}
-canvas{max-height:240px!important}
+.chart-scroll{
+  overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  /* dezente Scroll-Leiste */
+  scrollbar-width:thin;scrollbar-color:rgba(200,169,81,.3) transparent
+}
+.chart-scroll::-webkit-scrollbar{height:4px}
+.chart-scroll::-webkit-scrollbar-track{background:transparent}
+.chart-scroll::-webkit-scrollbar-thumb{background:rgba(200,169,81,.3);border-radius:4px}
+canvas{display:block;height:240px!important;max-height:none!important}
 
 /* ── TABLE ── */
 .tbl-wrap{overflow-x:auto}
@@ -490,9 +501,9 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
   <div class="kpi-section-label">Affiliate-Erträge</div>
   <div class="aff-kpi-grid" id="affKpiGrid"></div>
   <div class="chart-grid">
-    <div class="chart-card"><div class="chart-title">Gesamtvermögen über Zeit &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonus + Lieferung</span></div><canvas id="cTotal"></canvas></div>
-    <div class="chart-card"><div class="chart-title">Monatliche Einnahmen &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonusmonat</span></div><canvas id="cMonthly"></canvas></div>
-    <div class="chart-card"><div class="chart-title">Goldakkumulation</div><canvas id="cGold"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Gesamtvermögen über Zeit &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonus + Lieferung</span></div><div class="chart-scroll"><canvas id="cTotal"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Monatliche Einnahmen &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonusmonat</span></div><div class="chart-scroll"><canvas id="cMonthly"></canvas></div></div>
+    <div class="chart-card"><div class="chart-title">Goldakkumulation</div><div class="chart-scroll"><canvas id="cGold"></canvas></div></div>
     <div class="chart-card"><div class="chart-title">Einnahmen-Aufschlüsselung (gesamt)</div><canvas id="cBreak"></canvas></div>
   </div>
 </div></div>
@@ -736,31 +747,47 @@ function calculate(opts = {}) {
 
 // ─── GOLD PRICE ──────────────────────────────────────────────
 async function fetchGoldPrice(btn) {
-  if (btn) { btn.textContent='…'; btn.disabled=true; }
+  const ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>`;
+  if (btn) { btn.innerHTML = ICON + ' …'; btn.disabled = true; }
   try {
-    const r   = await fetch('https://api.metals.live/v1/spot/gold');
-    const arr = await r.json();
-    const usdOz = arr[0]?.price ?? arr?.price;
-    if (!usdOz) throw 0;
-    const fx  = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
-    const fxd = await fx.json();
-    const eur = Math.round((usdOz/31.1035)*fxd.rates.EUR*100)/100;
-    S.goldPerGram = eur;
-    document.getElementById('goldPriceInput').value = eur.toFixed(2);
-    updateGoldDisplay(); render();
-  } catch(e) {
+    let eurPerGram = null;
+
+    // Versuch 1: Frankfurter XAU→EUR (explizit CORS-freundlich)
     try {
-      const r2  = await fetch('https://api.frankfurter.app/latest?from=XAU&to=EUR');
-      const d2  = await r2.json();
-      const eur = Math.round((d2.rates.EUR/31.1035)*100)/100;
-      S.goldPerGram = eur;
-      document.getElementById('goldPriceInput').value = eur.toFixed(2);
-      updateGoldDisplay(); render();
-    } catch(e2) { alert('Live-Preis nicht verfügbar. Bitte manuell eingeben.'); }
-  }
-  if (btn) {
-    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Live`;
-    btn.disabled = false;
+      const r = await fetch('https://api.frankfurter.app/latest?from=XAU&to=EUR');
+      if (r.ok) {
+        const d = await r.json();
+        if (d.rates?.EUR > 0)
+          eurPerGram = Math.round(d.rates.EUR / 31.1035 * 100) / 100;
+      }
+    } catch(_) { /* weiter zu Versuch 2 */ }
+
+    // Versuch 2: metals.live USD-Spot + USD→EUR-Kurs
+    if (!eurPerGram) {
+      const rM = await fetch('https://api.metals.live/v1/spot/gold');
+      if (!rM.ok) throw new Error(`metals.live HTTP ${rM.status}`);
+      const arr  = await rM.json();
+      const usdOz = arr?.[0]?.price ?? arr?.price;
+      if (!usdOz) throw new Error('Kein Preis in der Antwort');
+      const rF = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
+      if (!rF.ok) throw new Error(`frankfurter HTTP ${rF.status}`);
+      const fxd = await rF.json();
+      eurPerGram = Math.round(usdOz / 31.1035 * fxd.rates.EUR * 100) / 100;
+    }
+
+    if (!eurPerGram || eurPerGram <= 0) throw new Error('Ungültiger Preis');
+    S.goldPerGram = eurPerGram;
+    document.getElementById('goldPriceInput').value = eurPerGram.toFixed(2);
+    updateGoldDisplay(); render();
+
+  } catch(e) {
+    const lokal = location.protocol === 'file:';
+    alert(lokal
+      ? 'Live-Preis ist nur über die gehostete Version verfügbar (CORS-Einschränkung beim lokalen Öffnen).\n\n→ GitHub Pages:\nhttps://svenn8n-a11y.github.io/gold-investment-kalkulator/'
+      : 'Live-Preis aktuell nicht erreichbar. Bitte Preis manuell eintragen.');
+  } finally {
+    // Immer wiederherstellen – auch bei unerwarteten Fehlern
+    if (btn) { btn.innerHTML = ICON + ' Live'; btn.disabled = false; }
   }
 }
 
@@ -1031,9 +1058,22 @@ function mkChart(id,type,data,options){
   CHT[id]=new Chart(ctx,{type,data,options});
 }
 
+// Setzt Canvas-Breite dynamisch; Chart skaliert sich auf den Datenumfang
+function setChartSize(id, nPoints, pxPerPoint) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const card = el.closest('.chart-card');
+  // Mindestbreite = verfügbare Card-Breite (ohne Padding)
+  const minW = card ? Math.max(0, card.clientWidth - 36) : 400;
+  const dynW = Math.max(minW, nPoints * pxPerPoint);
+  el.style.width  = dynW + 'px';
+  el.style.height = '240px';
+}
+
 function updateCharts(data, totalMo) {
   const disp   = data.slice(0, totalMo+1);
   const labels = disp.map(d=>d.label);
+  const n      = disp.length;
 
   const bonusAnnotations = {};
   disp.forEach((d, i) => {
@@ -1053,7 +1093,7 @@ function updateCharts(data, totalMo) {
   });
 
   const baseOpts = {
-    responsive:true, maintainAspectRatio:true,
+    responsive:false, maintainAspectRatio:false,
     plugins:{
       legend:{ labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }},
       tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}},
@@ -1065,12 +1105,15 @@ function updateCharts(data, totalMo) {
     }
   };
 
+  // Liniendiagramme: ~14 px/Monat, Balkendiagramm: ~20 px/Monat
+  setChartSize('cTotal',   n, 14);
   mkChart('cTotal','line',{ labels, datasets:[
     { label:'Gesamtvermögen', data:disp.map(d=>d.totalWealth), borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,.09)', fill:true, tension:.35, pointRadius:0 },
     { label:'Liquides Kapital', data:disp.map(d=>d.liquidBal), borderColor:'#3DB870', backgroundColor:'rgba(61,184,112,.07)', fill:true, tension:.35, pointRadius:0 },
     { label:'Goldwert geliefert', data:disp.map(d=>d.deliveredVal), borderColor:'#F0C040', tension:.35, pointRadius:0 }
   ]}, baseOpts);
 
+  setChartSize('cMonthly', n, 20);
   mkChart('cMonthly','bar',{ labels, datasets:[
     { label:'2 % Payouts',   data:disp.map(d=>d.pay2),   backgroundColor:'#C8A951', stack:'s' },
     { label:'30 % Bonus',    data:disp.map(d=>d.pay30),  backgroundColor:'#F0C040', stack:'s' },
@@ -1083,6 +1126,7 @@ function updateCharts(data, totalMo) {
     y2:{ position:'right', ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ drawOnChartArea:false }}
   }, plugins:{...baseOpts.plugins, tooltip:{ callbacks:{ label:ctx=>ctx.dataset.yAxisID==='y2'?` ${EUR(ctx.parsed.y)}`:` ${ctx.parsed.y.toFixed(3)} g`}}}};
 
+  setChartSize('cGold',    n, 14);
   mkChart('cGold','line',{ labels, datasets:[
     { label:'Gold kumuliert (g)', data:disp.map(d=>d.cumGoldGrams), borderColor:'#C8A951', tension:.35, pointRadius:0, yAxisID:'y' },
     { label:'Goldwert (€)', data:disp.map(d=>d.deliveredVal), borderColor:'#F0C040', tension:.35, pointRadius:0, yAxisID:'y2', borderDash:[4,2] }
