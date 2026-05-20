@@ -411,9 +411,19 @@ function calculate(opts = {}) {
     }
 
     for (const aff of affiliates) {
+      // One-time investments
       for (const ai of aff.investments) {
         const d = mo - ai.startMonth;
         if (d >= 0 && d < 36) affInc += ai.principalEUR * 0.01;
+      }
+      // Monthly plan: each monthly purchase starts own 36-month affiliate cycle
+      if (aff.plan?.active && aff.plan.amount > 0) {
+        const planEnd = aff.plan.duration >= 0
+          ? aff.plan.start + aff.plan.duration : N;
+        for (let pm = aff.plan.start; pm <= mo && pm < planEnd; pm++) {
+          const delta = mo - pm;
+          if (delta < 36) affInc += aff.plan.amount * 0.01;
+        }
       }
     }
 
@@ -560,8 +570,25 @@ function removeWithdrawal(id){ S.withdrawals=S.withdrawals.filter(w=>w.id!==id);
 function addAffiliate() {
   const name=document.getElementById('affName').value.trim();
   if (!name){ alert('Bitte Namen eingeben.'); return; }
-  S.affiliates.push({ id:uid(), name, investments:[] });
+  S.affiliates.push({ id:uid(), name, investments:[], plan:{ active:false, amount:0, start:0, duration:-1 } });
   document.getElementById('affName').value=''; renderAffiliates(); render();
+}
+
+function setAffPlan(affId) {
+  const amt  = parseFloat(document.getElementById(`ap_amt_${affId}`).value);
+  const st   = parseInt(document.getElementById(`ap_st_${affId}`).value)||0;
+  const dur  = parseInt(document.getElementById(`ap_dur_${affId}`).value);
+  if (!amt||amt<=0){ alert('Bitte gültigen Betrag eingeben.'); return; }
+  const aff=S.affiliates.find(a=>a.id===affId);
+  if (!aff) return;
+  aff.plan={ active:true, amount:amt, start:st, duration:dur };
+  renderAffiliates(); render();
+}
+
+function clearAffPlan(affId) {
+  const aff=S.affiliates.find(a=>a.id===affId);
+  if (aff) aff.plan={ active:false, amount:0, start:0, duration:-1 };
+  renderAffiliates(); render();
 }
 function removeAffiliate(id){ S.affiliates=S.affiliates.filter(a=>a.id!==id); renderAffiliates(); render(); }
 
@@ -635,35 +662,63 @@ function renderAffiliates() {
   if (!S.affiliates.length){ c.innerHTML='<div class="empty">Noch keine Klienten vorhanden.</div>'; return; }
   let html='';
   for (const aff of S.affiliates) {
-    const totalCap=aff.investments.reduce((s,i)=>s+i.principalEUR,0);
-    const moInc=aff.investments.reduce((s,i)=>s+i.principalEUR*0.01,0);
+    const totalCap    = aff.investments.reduce((s,i)=>s+i.principalEUR,0);
+    const moIncOne    = aff.investments.reduce((s,i)=>s+i.principalEUR*0.01,0);
+    const moIncPlan   = (aff.plan?.active && aff.plan.amount>0) ? aff.plan.amount*0.01 : 0;
     let moOpts='';
     for (let m=0;m<=S.cycles*36;m++) moOpts+=`<option value="${m}">${monthLabel(m)}</option>`;
+    let durOpts=`<option value="-1">Unbegrenzt</option><option value="6">6 Mo.</option>
+      <option value="12">12 Mo.</option><option value="24">24 Mo.</option>
+      <option value="36">36 Mo. (1 Zyklus)</option>`;
     let invRows='';
     for (const ai of aff.investments)
       invRows+=`<div class="pos-item" style="margin-bottom:6px">
-        <div class="pos-main"><span class="tag tag-aff">Investition</span>
+        <div class="pos-main"><span class="tag tag-aff">Einmalinvestition</span>
           <strong>${EUR(ai.principalEUR)}</strong>
           <span class="pos-meta">ab ${monthLabel(ai.startMonth)}</span>
           <span class="c-blue" style="font-size:12px">→ ${EUR(ai.principalEUR*0.01)}/Mo. für dich</span>
         </div>
         <button class="btn btn-red btn-sm" onclick="removeAffInv(${aff.id},${ai.id})">✕</button>
       </div>`;
+
+    const planStatus = aff.plan?.active
+      ? `<div class="pos-item" style="margin-bottom:6px;background:rgba(52,152,219,.08);border-color:rgba(52,152,219,.3)">
+          <div class="pos-main"><span class="tag tag-aff">📅 Sparplan</span>
+            <strong>${EUR(aff.plan.amount)}/Monat</strong>
+            <span class="pos-meta">ab ${monthLabel(aff.plan.start)}${aff.plan.duration>=0?' für '+aff.plan.duration+' Mo.':' (unbegrenzt)'}</span>
+            <span class="c-blue" style="font-size:12px">→ ${EUR(aff.plan.amount*0.01)}/Mo. pro aktiver Rate</span>
+          </div>
+          <button class="btn btn-red btn-sm" onclick="clearAffPlan(${aff.id})">✕</button>
+        </div>` : '';
+
     html+=`<div class="card">
       <div class="card-title">👤 ${aff.name}
         <button class="btn btn-red btn-sm" onclick="removeAffiliate(${aff.id})">Entfernen</button>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-        <div class="kpi" style="flex:1;min-width:130px"><div class="kpi-label">Klienten-Kapital</div><div class="kpi-value c-blue">${EUR(totalCap)}</div></div>
-        <div class="kpi" style="flex:1;min-width:130px"><div class="kpi-label">Deine 1 %/Monat</div><div class="kpi-value c-green">${EUR(moInc)}</div><div class="kpi-sub">× 36 = ${EUR(moInc*36)}</div></div>
+        <div class="kpi" style="flex:1;min-width:130px"><div class="kpi-label">Klienten-Kapital (Einmal)</div><div class="kpi-value c-blue">${EUR(totalCap)}</div></div>
+        <div class="kpi" style="flex:1;min-width:130px"><div class="kpi-label">1 % Einmal-Provision</div><div class="kpi-value c-green">${EUR(moIncOne)}/Mo.</div><div class="kpi-sub">× 36 = ${EUR(moIncOne*36)}</div></div>
+        ${aff.plan?.active?`<div class="kpi" style="flex:1;min-width:130px"><div class="kpi-label">1 % Sparplan-Provision</div><div class="kpi-value c-blue">${EUR(moIncPlan)}/Mo. pro Rate</div><div class="kpi-sub">wächst monatlich</div></div>`:''}
       </div>
-      <div class="sect">Investition hinzufügen</div>
+
+      <div class="sect">Einmalinvestition hinzufügen</div>
       <div class="form-row" style="margin-bottom:12px">
         <div class="form-group"><label>Betrag (EUR)</label><input type="number" id="aa_${aff.id}" placeholder="5 000" min="1" step="100"></div>
         <div class="form-group"><label>Startmonat</label><select id="am_${aff.id}">${moOpts}</select></div>
         <button class="btn btn-outline" onclick="addAffInv(${aff.id})">+ Hinzufügen</button>
       </div>
-      ${invRows||'<div class="pos-meta">Noch keine Investitionen erfasst.</div>'}
+      ${invRows||''}
+
+      <div class="divider"></div>
+      <div class="sect">Monatlicher Sparplan des Klienten</div>
+      <div class="pos-meta" style="margin-bottom:8px">Jede monatliche Rate des Klienten startet einen eigenen 36-Monatszyklus → deine 1%-Provision wächst monatlich an.</div>
+      ${planStatus}
+      ${!aff.plan?.active ? `<div class="form-row">
+        <div class="form-group"><label>Betrag/Monat (EUR)</label><input type="number" id="ap_amt_${aff.id}" placeholder="200" min="1" step="50"></div>
+        <div class="form-group"><label>Ab Monat</label><select id="ap_st_${aff.id}">${moOpts}</select></div>
+        <div class="form-group"><label>Dauer</label><select id="ap_dur_${aff.id}">${durOpts}</select></div>
+        <button class="btn btn-outline" onclick="setAffPlan(${aff.id})">Sparplan setzen</button>
+      </div>` : ''}
     </div>`;
   }
   c.innerHTML=html;
@@ -839,21 +894,33 @@ function runGoal() {
     return null;
   }
 
-  // Binary search helpers
-  function bsearch(fn, lo=0, hi=goalAmt*20, iters=60) {
+  // Binary search – 35 iterations give cent-level precision, stay fast
+  function bsearch(fn, lo=0, hi=goalAmt*20, iters=35) {
     for (let i=0;i<iters;i++){ const mid=(lo+hi)/2; fn(mid)>=goalAmt?hi=mid:lo=mid; }
     return hi;
   }
 
-  const curReach = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
+  const curReach     = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
   const curReachNoRi = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, false);
 
   // Find needed amounts
-  const needOne    = bsearch(v => getVal(sim(v, 0, 0, 0, withRi)));
-  const needPlan   = bsearch(v => getVal(sim(0, v, 0, 0, withRi)));
-  const needAff1k  = bsearch(v => getVal(sim(0, 0, Math.round(v), 1000, withRi))); // clients @ 1k
-  const needAff5k  = bsearch(v => getVal(sim(0, 0, Math.round(v), 5000, withRi))); // clients @ 5k
-  const needAff10k = bsearch(v => getVal(sim(0, 0, Math.round(v), 10000, withRi)));// clients @ 10k
+  const needOne  = bsearch(v => getVal(sim(v, 0, 0, 0, withRi)));
+  const needPlan = bsearch(v => getVal(sim(0, v, 0, 0, withRi)));
+
+  // For affiliates: search for total AFFILIATE CAPITAL (1 pool) → avoids O(clients) inner loop
+  // Then divide by per-client amount to get number of clients needed
+  function simAffCap(totalCap, ri) {
+    const affs = totalCap>0 ? [{ id:99, name:'A',
+      investments:[{ id:0, startMonth:0, principalEUR:totalCap }], plan:{active:false} }] : [];
+    const d = calculate({ investments:[], plan:{ active:false,amount:0,start:0,duration:-1 },
+      affiliates:affs, withdrawals:[], reinvest:ri, cycleReinvest:false,
+      cycles: Math.ceil(horizon/36)+1, projection:S.projection, goldPerGram:S.goldPerGram });
+    return getVal(d[Math.min(horizon, d.length-1)]);
+  }
+  const needAffCap = bsearch(v => simAffCap(v, withRi));
+  const needAff1k  = Math.ceil(needAffCap / 1000);
+  const needAff5k  = Math.ceil(needAffCap / 5000);
+  const needAff10k = Math.ceil(needAffCap / 10000);
 
   const pct = goalAmt>0 ? (curVal/goalAmt*100).toFixed(1) : 0;
   const goalLabel = goalType==='liquid'?'Liquides Kapital':goalType==='total'?'Gesamtvermögen':'Monatliche Einnahmen';
@@ -889,18 +956,18 @@ function runGoal() {
       </div>
       <div class="goal-scenario">
         <h4>Nur Affiliates (à 1.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${Math.ceil(needAff1k)} Klienten</div>
-        <div class="kpi-sub">je 1.000 € Einmalanlage</div>
+        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${needAff1k} Klienten</div>
+        <div class="kpi-sub">je 1.000 € Einmalanlage (= ${EUR(needAff1k*1000)} Gesamtkapital)</div>
       </div>
       <div class="goal-scenario">
         <h4>Nur Affiliates (à 5.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${Math.ceil(needAff5k)} Klienten</div>
-        <div class="kpi-sub">je 5.000 € Einmalanlage</div>
+        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${needAff5k} Klienten</div>
+        <div class="kpi-sub">je 5.000 € Einmalanlage (= ${EUR(needAff5k*5000)} Gesamtkapital)</div>
       </div>
       <div class="goal-scenario">
         <h4>Nur Affiliates (à 10.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${Math.ceil(needAff10k)} Klienten</div>
-        <div class="kpi-sub">je 10.000 € Einmalanlage</div>
+        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${needAff10k} Klienten</div>
+        <div class="kpi-sub">je 10.000 € Einmalanlage (= ${EUR(needAff10k*10000)} Gesamtkapital)</div>
       </div>
     </div>
 
