@@ -189,25 +189,58 @@ select{
 @media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
 .chart-card{
   background:var(--card);backdrop-filter:blur(12px);border-radius:var(--radius);
-  border:1px solid var(--border);padding:18px;position:relative;
-  /* kein overflow:hidden – sonst blockiert es den horizontalen Scroll */
+  border:1px solid var(--border);padding:18px;position:relative;overflow:hidden
 }
 .chart-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(200,169,81,.24),transparent);
   z-index:1;pointer-events:none
 }
-.chart-title{font-size:10.5px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px}
-.chart-scroll{
-  overflow-x:auto;overflow-y:hidden;
-  -webkit-overflow-scrolling:touch;
-  /* dezente Scroll-Leiste */
+.chart-title{
+  font-size:10.5px;font-weight:500;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.09em;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px
+}
+.chart-title-text{flex:1}
+.chart-expand-btn{
+  flex-shrink:0;background:transparent;border:1px solid var(--border2);
+  border-radius:6px;padding:4px 6px;cursor:pointer;color:var(--muted);
+  display:flex;align-items:center;transition:all .15s
+}
+.chart-expand-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,169,81,.08)}
+canvas{max-height:240px!important}
+
+/* ── CHART MODAL ── */
+.chart-modal{
+  display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;padding:20px
+}
+.chart-modal.open{display:flex}
+.chart-modal-box{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  width:100%;max-width:1440px;max-height:92vh;
+  display:flex;flex-direction:column;overflow:hidden;position:relative
+}
+.chart-modal-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,169,81,.4),transparent)
+}
+.chart-modal-header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:16px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0
+}
+.chart-modal-title{
+  font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--gold3)
+}
+.chart-modal-hint{font-size:11px;color:var(--muted);margin-top:2px}
+.chart-modal-scroll{
+  overflow-x:auto;overflow-y:hidden;padding:20px 24px;flex:1;
   scrollbar-width:thin;scrollbar-color:rgba(200,169,81,.3) transparent
 }
-.chart-scroll::-webkit-scrollbar{height:4px}
-.chart-scroll::-webkit-scrollbar-track{background:transparent}
-.chart-scroll::-webkit-scrollbar-thumb{background:rgba(200,169,81,.3);border-radius:4px}
-canvas{display:block;height:240px!important;max-height:none!important}
+.chart-modal-scroll::-webkit-scrollbar{height:5px}
+.chart-modal-scroll::-webkit-scrollbar-track{background:transparent}
+.chart-modal-scroll::-webkit-scrollbar-thumb{background:rgba(200,169,81,.3);border-radius:4px}
 
 /* ── TABLE ── */
 .tbl-wrap{overflow-x:auto}
@@ -501,10 +534,42 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
   <div class="kpi-section-label">Affiliate-Erträge</div>
   <div class="aff-kpi-grid" id="affKpiGrid"></div>
   <div class="chart-grid">
-    <div class="chart-card"><div class="chart-title">Gesamtvermögen über Zeit &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonus + Lieferung</span></div><div class="chart-scroll"><canvas id="cTotal"></canvas></div></div>
-    <div class="chart-card"><div class="chart-title">Monatliche Einnahmen &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonusmonat</span></div><div class="chart-scroll"><canvas id="cMonthly"></canvas></div></div>
-    <div class="chart-card"><div class="chart-title">Goldakkumulation</div><div class="chart-scroll"><canvas id="cGold"></canvas></div></div>
-    <div class="chart-card"><div class="chart-title">Einnahmen-Aufschlüsselung (gesamt)</div><canvas id="cBreak"></canvas></div>
+    <div class="chart-card">
+      <div class="chart-title">
+        <span class="chart-title-text">Gesamtvermögen über Zeit &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonus + Lieferung</span></span>
+        <button class="chart-expand-btn" onclick="expandChart('cTotal')" title="Detailansicht">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
+      </div>
+      <canvas id="cTotal"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">
+        <span class="chart-title-text">Monatliche Einnahmen &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonusmonat</span></span>
+        <button class="chart-expand-btn" onclick="expandChart('cMonthly')" title="Detailansicht">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
+      </div>
+      <canvas id="cMonthly"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">
+        <span class="chart-title-text">Goldakkumulation</span>
+        <button class="chart-expand-btn" onclick="expandChart('cGold')" title="Detailansicht">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
+      </div>
+      <canvas id="cGold"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">
+        <span class="chart-title-text">Einnahmen-Aufschlüsselung (gesamt)</span>
+        <button class="chart-expand-btn" onclick="expandChart('cBreak')" title="Detailansicht">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
+      </div>
+      <canvas id="cBreak"></canvas>
+    </div>
   </div>
 </div></div>
 
@@ -590,6 +655,25 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
 
 </div><!-- /main-area -->
 </div><!-- /app -->
+
+<!-- ═══ CHART MODAL ═══ -->
+<div id="chartModal" class="chart-modal" onclick="closeChartModal(event)">
+  <div class="chart-modal-box">
+    <div class="chart-modal-header">
+      <div>
+        <div class="chart-modal-title" id="chartModalTitle"></div>
+        <div class="chart-modal-hint">Horizontal scrollbar bei vielen Monaten · Klick außerhalb zum Schließen</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="closeChartModal()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Schließen
+      </button>
+    </div>
+    <div class="chart-modal-scroll">
+      <canvas id="cModal"></canvas>
+    </div>
+  </div>
+</div>
 
 <script>
 'use strict';
@@ -1051,6 +1135,9 @@ function renderDashboard(data) {
 
 // ─── CHARTS ──────────────────────────────────────────────────
 const CHT={};
+let CHT_MODAL = null;
+let lastDispData = [];
+
 function mkChart(id,type,data,options){
   if(CHT[id]) CHT[id].destroy();
   const ctx=document.getElementById(id);
@@ -1058,22 +1145,10 @@ function mkChart(id,type,data,options){
   CHT[id]=new Chart(ctx,{type,data,options});
 }
 
-// Setzt Canvas-Breite dynamisch; Chart skaliert sich auf den Datenumfang
-function setChartSize(id, nPoints, pxPerPoint) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const card = el.closest('.chart-card');
-  // Mindestbreite = verfügbare Card-Breite (ohne Padding)
-  const minW = card ? Math.max(0, card.clientWidth - 36) : 400;
-  const dynW = Math.max(minW, nPoints * pxPerPoint);
-  el.style.width  = dynW + 'px';
-  el.style.height = '240px';
-}
-
 function updateCharts(data, totalMo) {
-  const disp   = data.slice(0, totalMo+1);
+  lastDispData = data.slice(0, totalMo+1);
+  const disp   = lastDispData;
   const labels = disp.map(d=>d.label);
-  const n      = disp.length;
 
   const bonusAnnotations = {};
   disp.forEach((d, i) => {
@@ -1093,7 +1168,7 @@ function updateCharts(data, totalMo) {
   });
 
   const baseOpts = {
-    responsive:false, maintainAspectRatio:false,
+    responsive:true, maintainAspectRatio:true,
     plugins:{
       legend:{ labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }},
       tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}},
@@ -1105,15 +1180,12 @@ function updateCharts(data, totalMo) {
     }
   };
 
-  // Liniendiagramme: ~14 px/Monat, Balkendiagramm: ~20 px/Monat
-  setChartSize('cTotal',   n, 14);
   mkChart('cTotal','line',{ labels, datasets:[
     { label:'Gesamtvermögen', data:disp.map(d=>d.totalWealth), borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,.09)', fill:true, tension:.35, pointRadius:0 },
     { label:'Liquides Kapital', data:disp.map(d=>d.liquidBal), borderColor:'#3DB870', backgroundColor:'rgba(61,184,112,.07)', fill:true, tension:.35, pointRadius:0 },
     { label:'Goldwert geliefert', data:disp.map(d=>d.deliveredVal), borderColor:'#F0C040', tension:.35, pointRadius:0 }
   ]}, baseOpts);
 
-  setChartSize('cMonthly', n, 20);
   mkChart('cMonthly','bar',{ labels, datasets:[
     { label:'2 % Payouts',   data:disp.map(d=>d.pay2),   backgroundColor:'#C8A951', stack:'s' },
     { label:'30 % Bonus',    data:disp.map(d=>d.pay30),  backgroundColor:'#F0C040', stack:'s' },
@@ -1126,7 +1198,6 @@ function updateCharts(data, totalMo) {
     y2:{ position:'right', ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ drawOnChartArea:false }}
   }, plugins:{...baseOpts.plugins, tooltip:{ callbacks:{ label:ctx=>ctx.dataset.yAxisID==='y2'?` ${EUR(ctx.parsed.y)}`:` ${ctx.parsed.y.toFixed(3)} g`}}}};
 
-  setChartSize('cGold',    n, 14);
   mkChart('cGold','line',{ labels, datasets:[
     { label:'Gold kumuliert (g)', data:disp.map(d=>d.cumGoldGrams), borderColor:'#C8A951', tension:.35, pointRadius:0, yAxisID:'y' },
     { label:'Goldwert (€)', data:disp.map(d=>d.deliveredVal), borderColor:'#F0C040', tension:.35, pointRadius:0, yAxisID:'y2', borderDash:[4,2] }
@@ -1141,6 +1212,122 @@ function updateCharts(data, totalMo) {
     datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#F0C040','#5B9CF6','#3DB870'], borderWidth:0 }]
   },{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }}, tooltip:{ callbacks:{ label:ctx=>` ${EUR(ctx.parsed)}`}}}});
 }
+
+// ─── CHART MODAL ─────────────────────────────────────────────
+const CHART_TITLES = {
+  cTotal:   'Gesamtvermögen über Zeit',
+  cMonthly: 'Monatliche Einnahmen nach Quelle',
+  cGold:    'Goldakkumulation',
+  cBreak:   'Einnahmen-Aufschlüsselung'
+};
+
+function expandChart(id) {
+  if (!lastDispData.length) return;
+  const disp   = lastDispData;
+  const labels = disp.map(d => d.label);
+  const n      = disp.length;
+
+  // Canvas-Größe: Modal ist max 1440px breit, Canvas darf breiter sein → scrollt
+  const pxPer  = id === 'cMonthly' ? 22 : 15;
+  const isDoughnut = id === 'cBreak';
+  const w = isDoughnut ? 520 : Math.max(900, n * pxPer);
+  const h = isDoughnut ? 420 : 380;
+
+  const canvas = document.getElementById('cModal');
+  if (CHT_MODAL) { CHT_MODAL.destroy(); CHT_MODAL = null; }
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
+
+  // Bonus-Annotationen für Modal
+  const ann = {};
+  disp.forEach((d, i) => {
+    if (d.pay30 > 0 || d.delivGrams > 0) {
+      ann[`bm${i}`] = {
+        type:'line', scaleID:'x', value:labels[i],
+        borderColor:'rgba(240,192,64,0.5)', borderWidth:1.5, borderDash:[5,4],
+        label:{ content:'Bonus', display:true, backgroundColor:'rgba(240,192,64,0.1)',
+          color:'#F0C040', font:{size:10,weight:'bold'}, position:'start', yAdjust:6 }
+      };
+    }
+  });
+
+  const base = {
+    responsive:false, maintainAspectRatio:false,
+    plugins:{
+      legend:{ labels:{ color:'#7C7670', font:{size:12}, boxWidth:14 }},
+      tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}},
+      annotation:{ annotations: ann }
+    },
+    scales:{
+      x:{ ticks:{ color:'#7C7670', maxRotation:45, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
+      y:{ ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:11}}, grid:{ color:'rgba(255,255,255,.04)'}}
+    }
+  };
+
+  let type, data, opts;
+
+  if (id === 'cTotal') {
+    type = 'line';
+    data = { labels, datasets:[
+      { label:'Gesamtvermögen', data:disp.map(d=>d.totalWealth), borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,.09)', fill:true, tension:.35, pointRadius:1 },
+      { label:'Liquides Kapital', data:disp.map(d=>d.liquidBal), borderColor:'#3DB870', backgroundColor:'rgba(61,184,112,.07)', fill:true, tension:.35, pointRadius:1 },
+      { label:'Goldwert geliefert', data:disp.map(d=>d.deliveredVal), borderColor:'#F0C040', tension:.35, pointRadius:1 }
+    ]};
+    opts = base;
+
+  } else if (id === 'cMonthly') {
+    type = 'bar';
+    data = { labels, datasets:[
+      { label:'2 % Payouts',   data:disp.map(d=>d.pay2),   backgroundColor:'#C8A951', stack:'s' },
+      { label:'30 % Bonus',    data:disp.map(d=>d.pay30),  backgroundColor:'#F0C040', stack:'s' },
+      { label:'Affiliate 1 %', data:disp.map(d=>d.affInc), backgroundColor:'#5B9CF6', stack:'s' }
+    ]};
+    opts = base;
+
+  } else if (id === 'cGold') {
+    type = 'line';
+    data = { labels, datasets:[
+      { label:'Gold kumuliert (g)', data:disp.map(d=>d.cumGoldGrams), borderColor:'#C8A951', tension:.35, pointRadius:1, yAxisID:'y' },
+      { label:'Goldwert (€)',       data:disp.map(d=>d.deliveredVal),  borderColor:'#F0C040', tension:.35, pointRadius:1, yAxisID:'y2', borderDash:[4,2] }
+    ]};
+    opts = { ...base,
+      scales:{
+        x:{ ticks:{ color:'#7C7670', maxRotation:45, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
+        y:{ position:'left',  ticks:{ color:'#7C7670', callback:v=>v.toFixed(2)+' g', font:{size:11}}, grid:{ color:'rgba(255,255,255,.04)'}},
+        y2:{ position:'right', ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:11}}, grid:{ drawOnChartArea:false }}
+      },
+      plugins:{ ...base.plugins, tooltip:{ callbacks:{ label:ctx=>ctx.dataset.yAxisID==='y2'?` ${EUR(ctx.parsed.y)}`:` ${ctx.parsed.y.toFixed(3)} g`}}}
+    };
+
+  } else { // cBreak – Doughnut
+    const tot2  = disp.reduce((s,d)=>s+d.pay2,0);
+    const tot30 = disp.reduce((s,d)=>s+d.pay30,0);
+    const totAff= disp.reduce((s,d)=>s+d.affInc,0);
+    const totRe = disp[disp.length-1]?.cumReinvested||0;
+    type = 'doughnut';
+    data = {
+      labels:['2 % Monatspayouts','30 % Treueboni','Affiliate 1 %','Reinvestiert'],
+      datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#F0C040','#5B9CF6','#3DB870'], borderWidth:0 }]
+    };
+    opts = { responsive:false, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'right', labels:{ color:'#7C7670', font:{size:13}, boxWidth:14 }},
+        tooltip:{ callbacks:{ label:ctx=>` ${EUR(ctx.parsed)}`}}}
+    };
+  }
+
+  CHT_MODAL = new Chart(canvas, { type, data, options: opts });
+  document.getElementById('chartModalTitle').textContent = CHART_TITLES[id] || '';
+  document.getElementById('chartModal').classList.add('open');
+}
+
+function closeChartModal(e) {
+  if (!e || e.target === document.getElementById('chartModal')) {
+    document.getElementById('chartModal').classList.remove('open');
+  }
+}
+
+// ESC-Taste schließt Modal
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeChartModal(); });
 
 // ─── RENDER: TIMELINE ────────────────────────────────────────
 function renderTimeline(data) {
