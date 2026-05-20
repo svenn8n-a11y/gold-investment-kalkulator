@@ -1422,7 +1422,7 @@ function updateCharts(data, totalMo) {
   const labels = disp.map(d=>d.label);
 
   // Farb-Palette: klar unterscheidbar
-  const CLR = { payout:'#C8A951', bonus:'#FF9F43', aff:'#5B9CF6', gold2:'#A8D8A8', reinvest:'#3DB870' };
+  const CLR = { payout:'#C8A951', bonus:'#F06820', aff:'#5B9CF6', gold2:'#A8D8A8', reinvest:'#3DB870' };
 
   const baseOpts = {
     responsive:true, maintainAspectRatio:true,
@@ -1431,7 +1431,7 @@ function updateCharts(data, totalMo) {
       tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}}
     },
     scales:{
-      x:{ ticks:{ color:'#7C7670', maxRotation:0, maxTicksLimit:13, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
+      x:{ ticks:{ color:'#7C7670', maxRotation:45, minRotation:30, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
       y:{ ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}}
     }
   };
@@ -1449,7 +1449,7 @@ function updateCharts(data, totalMo) {
   ]}, baseOpts);
 
   const goldOpts={...baseOpts, scales:{
-    x:{ ticks:{ color:'#7C7670', maxRotation:0, maxTicksLimit:13, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
+    x:{ ticks:{ color:'#7C7670', maxRotation:45, minRotation:30, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
     y:{ position:'left',  ticks:{ color:'#7C7670', callback:v=>v.toFixed(1)+' g', font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
     y2:{ position:'right', ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ drawOnChartArea:false }}
   }, plugins:{...baseOpts.plugins, tooltip:{ callbacks:{ label:ctx=>ctx.dataset.yAxisID==='y2'?` ${EUR(ctx.parsed.y)}`:` ${ctx.parsed.y.toFixed(3)} g`}}}};
@@ -1515,7 +1515,7 @@ function expandChart(id) {
     data = { labels, datasets:[
       { label:'Gesamtvermögen', data:disp.map(d=>d.totalWealth), borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,.09)', fill:true, tension:.35, pointRadius:1 },
       { label:'Liquides Kapital', data:disp.map(d=>d.liquidBal), borderColor:'#3DB870', backgroundColor:'rgba(61,184,112,.07)', fill:true, tension:.35, pointRadius:1 },
-      { label:'Goldwert geliefert', data:disp.map(d=>d.deliveredVal), borderColor:'#FF9F43', tension:.35, pointRadius:1 }
+      { label:'Goldwert geliefert', data:disp.map(d=>d.deliveredVal), borderColor:'#F06820', tension:.35, pointRadius:1 }
     ]};
     opts = base;
 
@@ -1523,7 +1523,7 @@ function expandChart(id) {
     type = 'bar';
     data = { labels, datasets:[
       { label:'2 % Payouts',   data:disp.map(d=>d.pay2),   backgroundColor:'#C8A951', stack:'s' },
-      { label:'30 % Bonus',    data:disp.map(d=>d.pay30),  backgroundColor:'#FF9F43', stack:'s' },
+      { label:'30 % Bonus',    data:disp.map(d=>d.pay30),  backgroundColor:'#F06820', stack:'s' },
       { label:'Affiliate 1 %', data:disp.map(d=>d.affInc), backgroundColor:'#5B9CF6', stack:'s' }
     ]};
     opts = base;
@@ -1532,7 +1532,7 @@ function expandChart(id) {
     type = 'line';
     data = { labels, datasets:[
       { label:'Gold kumuliert (g)', data:disp.map(d=>d.cumGoldGrams), borderColor:'#C8A951', tension:.35, pointRadius:1, yAxisID:'y' },
-      { label:'Goldwert (€)',       data:disp.map(d=>d.deliveredVal),  borderColor:'#FF9F43', tension:.35, pointRadius:1, yAxisID:'y2', borderDash:[4,2] }
+      { label:'Goldwert (€)',       data:disp.map(d=>d.deliveredVal),  borderColor:'#F06820', tension:.35, pointRadius:1, yAxisID:'y2', borderDash:[4,2] }
     ]};
     opts = { ...base,
       scales:{
@@ -1551,7 +1551,7 @@ function expandChart(id) {
     type = 'doughnut';
     data = {
       labels:['2 % Monatspayouts','30 % Treueboni','Affiliate 1 %','Reinvestiert'],
-      datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#FF9F43','#5B9CF6','#3DB870'], borderWidth:0 }]
+      datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#F06820','#5B9CF6','#3DB870'], borderWidth:0 }]
     };
     opts = { responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{ position:'right', labels:{ color:'#7C7670', font:{size:13}, boxWidth:14 }},
@@ -1602,10 +1602,10 @@ function renderTimeline(data) {
     const hasBonus = d.pay30>0;
     const hasDel   = d.delivGrams>0;
     rows+=`<tr class="${hasBonus?'hl':''} ${isCycleStart?'cycle-start':''}">
-      <td>${d.label}${hasBonus?` <span style="display:inline-flex;align-items:center;margin-left:6px;color:#FF9F43;font-size:11px" title="30% Treuebonus ausgezahlt">◆</span>`:''}</td>
+      <td>${d.label}${hasBonus?` <span style="display:inline-flex;align-items:center;margin-left:6px;color:#F06820;font-size:11px" title="30% Treuebonus ausgezahlt">◆</span>`:''}</td>
       <td><span class="cycle-badge">Z${zyklusNr}</span></td>
       <td class="c-gold">${d.pay2>0?EUR(d.pay2):'—'}</td>
-      <td>${d.pay30>0?`<span style="display:inline-block;background:rgba(255,159,67,.15);border:1px solid rgba(255,159,67,.35);border-radius:5px;padding:2px 9px;color:#FF9F43;font-weight:600;font-size:12.5px">${EUR(d.pay30)}</span>`:'—'}</td>
+      <td>${d.pay30>0?`<span style="display:inline-block;background:rgba(255,159,67,.15);border:1px solid rgba(255,159,67,.35);border-radius:5px;padding:2px 9px;color:#F06820;font-weight:600;font-size:12.5px">${EUR(d.pay30)}</span>`:'—'}</td>
       <td class="c-blue">${d.affInc>0?EUR(d.affInc):'—'}</td>
       <td><strong>${d.totalIncome>0?EUR(d.totalIncome):'—'}</strong></td>
       <td class="c-red">${d.wdAmt>0?'−'+EUR(d.wdAmt):'—'}</td>
