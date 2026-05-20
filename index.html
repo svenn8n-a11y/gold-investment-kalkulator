@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOLD Investment Kalkulator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--gold:#C8A951;--gold2:#FFD700;--dark:#141416;--dark2:#1E1E22;--dark3:#2A2A2F;--dark4:#363640;--text:#F0F0F5;--muted:#8A8A9A;--green:#2ECC71;--red:#E74C3C;--blue:#3498DB;--purple:#9B59B6;--radius:10px;--border:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;font-size:14px}
+
+header{background:var(--dark2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.logo{font-size:18px;font-weight:700;color:var(--gold);white-space:nowrap}
+
+.gold-block{display:flex;align-items:center;gap:10px;background:var(--dark3);border-radius:var(--radius);padding:8px 14px;border:1px solid var(--border)}
+.gold-block label{font-size:11px;color:var(--muted);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
+.gold-big{font-size:18px;font-weight:700;color:var(--gold);min-width:100px}
+
+.slider-wrap{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.slider-wrap label{font-size:12px;color:var(--muted)}
+input[type=range]{accent-color:var(--gold);width:100px}
+.slider-val{font-size:13px;font-weight:600;color:var(--gold);min-width:44px}
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:opacity .15s}
+.btn:hover{opacity:.85}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-gold{background:var(--gold);color:#000}.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-red{background:var(--red);color:#fff}.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn-blue{background:var(--blue);color:#fff}.btn-green{background:var(--green);color:#000}
+
+nav.tabs{background:var(--dark2);display:flex;gap:4px;padding:8px 24px;border-bottom:1px solid var(--border);overflow-x:auto}
+.tab-btn{padding:7px 18px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;white-space:nowrap;transition:all .15s}
+.tab-btn.active{background:var(--gold);color:#000;font-weight:600}
+.tab-content{display:none}.tab-content.active{display:block}
+
+.page{max-width:1400px;margin:0 auto;padding:24px}
+.card{background:var(--dark2);border-radius:var(--radius);border:1px solid var(--border);padding:20px;margin-bottom:18px}
+.card-title{font-size:15px;font-weight:600;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+.form-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+input[type=number],input[type=text],select{background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;width:160px}
+input[type=number]:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--gold)}
+select{cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%238A8A9A' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--dark3);border-radius:var(--radius);padding:14px;border:1px solid var(--border)}
+.kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.kpi-value{font-size:20px;font-weight:700}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--dark2);border-radius:var(--radius);border:1px solid var(--border);padding:16px}
+.chart-title{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px}
+canvas{max-height:240px!important}
+
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;white-space:nowrap}
+tr:hover td{background:rgba(255,255,255,.02)}
+tr.hl td{background:rgba(200,169,81,.08)}
+tr.cycle-start td{border-top:2px solid rgba(200,169,81,.4)}
+
+.toggle{position:relative;display:inline-block;width:42px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.tog-sl{position:absolute;inset:0;background:var(--dark4);border-radius:22px;cursor:pointer;border:1px solid var(--border);transition:.2s}
+.tog-sl::before{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;background:var(--muted);border-radius:50%;transition:.2s}
+.toggle input:checked+.tog-sl{background:var(--gold);border-color:var(--gold)}
+.toggle input:checked+.tog-sl::before{transform:translateX(20px);background:#000}
+
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.tag-own{background:rgba(200,169,81,.15);color:var(--gold)}
+.tag-monthly{background:rgba(155,89,182,.15);color:var(--purple)}
+.tag-reinvest{background:rgba(46,204,113,.15);color:var(--green)}
+.tag-aff{background:rgba(52,152,219,.15);color:var(--blue)}
+.tag-bonus{background:rgba(255,215,0,.15);color:var(--gold2)}
+.tag-cycle{background:rgba(231,76,60,.15);color:var(--red)}
+
+.pos-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--dark3);border-radius:8px;padding:10px 14px;border:1px solid var(--border);margin-bottom:7px;flex-wrap:wrap}
+.pos-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1}
+.pos-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.pos-meta{font-size:11px;color:var(--muted)}
+
+.info{background:rgba(200,169,81,.1);border:1px solid rgba(200,169,81,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--muted);margin-bottom:12px}
+.info-green{background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.25);color:var(--green)}
+.info-red{background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.25);color:var(--red)}
+.info-blue{background:rgba(52,152,219,.1);border-color:rgba(52,152,219,.25);color:var(--blue)}
+
+.sect{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:12px 0 7px}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.row-flex{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.empty{text-align:center;padding:24px;color:var(--muted);font-size:13px}
+
+.c-gold{color:var(--gold)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}
+.c-red{color:var(--red)}.c-muted{color:var(--muted)}.c-purple{color:var(--purple)}
+.c-gold2{color:var(--gold2)}
+
+/* Goal calculator grid */
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.goal-grid{grid-template-columns:1fr}}
+.goal-scenario{background:var(--dark3);border-radius:var(--radius);border:1px solid var(--border);padding:16px}
+.goal-scenario h4{font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em}
+
+.cycle-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(200,169,81,.15);color:var(--gold);border:1px solid rgba(200,169,81,.3)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⬡ GOLD Kalkulator</div>
+
+  <div class="gold-block">
+    <div>
+      <label>Goldpreis €/g</label>
+      <div class="gold-big" id="goldPriceDisplay">–</div>
+    </div>
+    <input type="number" id="goldPriceInput" value="92.50" min="1" step="0.01" style="width:90px" oninput="onGoldPrice(this.value)">
+    <button class="btn btn-outline btn-sm" onclick="fetchGoldPrice(this)">↻ Live</button>
+  </div>
+
+  <div class="slider-wrap">
+    <label>Goldsteigerung/Jahr</label>
+    <input type="range" id="sliderProjection" min="0" max="15" step="0.5" value="2" oninput="onProjection(this.value)">
+    <span class="slider-val" id="valProjection">2,0 %</span>
+  </div>
+
+  <div class="slider-wrap">
+    <label>Anzahl Zyklen (à 36 Mo.)</label>
+    <input type="range" id="sliderCycles" min="1" max="5" step="1" value="1" oninput="onCycles(this.value)">
+    <span class="slider-val" id="valCycles">1</span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="investments" onclick="switchTab(this)">💰 Investitionen</button>
+  <button class="tab-btn" data-tab="affiliates" onclick="switchTab(this)">👥 Affiliates</button>
+  <button class="tab-btn" data-tab="dashboard" onclick="switchTab(this)">📊 Dashboard</button>
+  <button class="tab-btn" data-tab="timeline" onclick="switchTab(this)">📅 Zeitverlauf</button>
+  <button class="tab-btn" data-tab="goal" onclick="switchTab(this)">🎯 Zielrechner</button>
+</nav>
+
+<!-- TAB: INVESTITIONEN -->
+<div id="tab-investments" class="tab-content active">
+<div class="page">
+
+  <div class="card">
+    <div class="card-title">⬡ Einmalinvestition hinzufügen</div>
+    <div class="form-row">
+      <div class="form-group"><label>Betrag (EUR)</label><input type="number" id="oneAmt" placeholder="10 000" min="1" step="100"></div>
+      <div class="form-group"><label>Startmonat</label><select id="oneMo"></select></div>
+      <button class="btn btn-gold" onclick="addOneTime()">+ Hinzufügen</button>
+    </div>
+    <div class="pos-meta" style="margin-top:8px">Laufzeit: 36 Monate. Payout: 2 %/Monat auf Kaufpreis + 30 % Treuebonus + Goldlieferung.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 Monatlicher Sparplan</div>
+    <div class="form-row">
+      <div class="form-group"><label>Betrag/Monat (EUR)</label><input type="number" id="planAmt" placeholder="500" min="1" step="50"></div>
+      <div class="form-group"><label>Ab Monat</label><select id="planStart"></select></div>
+      <div class="form-group"><label>Dauer (Monate)</label>
+        <select id="planDuration">
+          <option value="-1">Unbegrenzt</option>
+          <option value="6">6 Monate</option>
+          <option value="12">12 Monate</option>
+          <option value="18">18 Monate</option>
+          <option value="24">24 Monate</option>
+          <option value="36">36 Monate (1 Zyklus)</option>
+        </select>
+      </div>
+      <button class="btn btn-gold" onclick="setPlan()">Setzen</button>
+      <button class="btn btn-outline" onclick="clearPlan()">Löschen</button>
+    </div>
+    <div class="pos-meta" style="margin-top:8px">Jede Monatsrate startet einen eigenen 36-Monats-Zyklus mit eigenem 2 %/Monat Payout + 30 % Bonus.</div>
+    <div id="planStatus" style="display:none;margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚙️ Optionen</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="row-flex">
+        <label class="toggle"><input type="checkbox" id="reinvestToggle" onchange="S.reinvest=this.checked;render()"><span class="tog-sl"></span></label>
+        <div>
+          <div style="font-weight:600">Monatliche Payouts reinvestieren</div>
+          <div class="pos-meta" style="margin-top:2px">Jede Auszahlung wird sofort als neue Goldposition angelegt (eigener 36-Monatszyklus)</div>
+        </div>
+      </div>
+      <div class="row-flex">
+        <label class="toggle"><input type="checkbox" id="cycleReinvestToggle" onchange="S.cycleReinvest=this.checked;render()"><span class="tog-sl"></span></label>
+        <div>
+          <div style="font-weight:600">Zyklus-Reinvestition (am Ende jedes Zyklus)</div>
+          <div class="pos-meta" style="margin-top:2px">Am Ende von Zyklus 1, 2, 3 … wird das gesamte Liquid-Kapital als neue Einmalanlage reinvestiert</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💸 Einmalige Entnahme</div>
+    <div class="form-row">
+      <div class="form-group"><label>Monat</label><select id="wdMo"></select></div>
+      <div class="form-group"><label>Betrag (EUR)</label><input type="number" id="wdAmt" placeholder="1 000" min="1"></div>
+      <div class="form-group"><label>Notiz</label><input type="text" id="wdNote" placeholder="z. B. Urlaub" style="width:130px"></div>
+      <button class="btn btn-outline" onclick="addWithdrawal()">+ Entnahme</button>
+    </div>
+    <div id="wdList" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Meine Positionen</div>
+    <div id="posList"><div class="empty">Noch keine Positionen vorhanden.</div></div>
+  </div>
+
+</div>
+</div>
+
+<!-- TAB: AFFILIATES -->
+<div id="tab-affiliates" class="tab-content">
+<div class="page">
+  <div class="card">
+    <div class="card-title">👤 Neuen Affiliate-Klienten anlegen</div>
+    <div class="form-row">
+      <div class="form-group"><label>Name</label><input type="text" id="affName" placeholder="Max Mustermann" style="width:220px"></div>
+      <button class="btn btn-gold" onclick="addAffiliate()">+ Klient anlegen</button>
+    </div>
+    <div class="pos-meta" style="margin-top:8px">Du erhältst 1 %/Monat des Klienten-Kaufpreises für 36 Monate je Investitionsposition.</div>
+  </div>
+  <div id="affList"><div class="empty">Noch keine Klienten vorhanden.</div></div>
+</div>
+</div>
+
+<!-- TAB: DASHBOARD -->
+<div id="tab-dashboard" class="tab-content">
+<div class="page">
+  <div class="kpi-grid" id="kpiGrid"></div>
+  <div class="chart-grid">
+    <div class="chart-card"><div class="chart-title">Gesamtvermögen über Zeit</div><canvas id="cTotal"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Monatliche Einnahmen</div><canvas id="cMonthly"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Goldakkumulation</div><canvas id="cGold"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Einnahmen-Aufschlüsselung (gesamt)</div><canvas id="cBreak"></canvas></div>
+  </div>
+</div>
+</div>
+
+<!-- TAB: ZEITVERLAUF -->
+<div id="tab-timeline" class="tab-content">
+<div class="page">
+  <div class="card">
+    <div class="card-title">📅 Monatlicher Zeitverlauf</div>
+    <div class="tbl-wrap"><table><thead id="tlHead"></thead><tbody id="tlBody"></tbody></table></div>
+  </div>
+</div>
+</div>
+
+<!-- TAB: ZIELRECHNER -->
+<div id="tab-goal" class="tab-content">
+<div class="page">
+
+  <div class="card">
+    <div class="card-title">🎯 Zielbetrag & Kombinations-Rechner</div>
+
+    <div class="form-row" style="margin-bottom:16px">
+      <div class="form-group"><label>Zielbetrag (EUR)</label><input type="number" id="goalAmt" placeholder="100 000" min="1" step="1000" style="width:180px"></div>
+      <div class="form-group"><label>Zielgröße</label>
+        <select id="goalType" style="width:230px">
+          <option value="liquid">Liquides Kapital (Bargeld)</option>
+          <option value="total">Gesamtvermögen (inkl. Goldwert)</option>
+          <option value="monthly">Monatliche Einnahmen</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Zeithorizont</label>
+        <select id="goalCycles" style="width:200px">
+          <option value="36">1 Zyklus (36 Monate)</option>
+          <option value="72">2 Zyklen (72 Monate)</option>
+          <option value="108">3 Zyklen (108 Monate)</option>
+          <option value="144">4 Zyklen (144 Monate)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sect">Eigene Beiträge konfigurieren</div>
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="row-flex">
+        <input type="checkbox" id="g_useOne" checked style="width:auto;accent-color:var(--gold)">
+        <label for="g_useOne" style="color:var(--text)">Einmaleinlage:</label>
+        <input type="number" id="g_oneAmt" placeholder="5 000" min="0" step="100" style="width:120px">
+        <span class="pos-meta">EUR</span>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="row-flex">
+        <input type="checkbox" id="g_usePlan" checked style="width:auto;accent-color:var(--gold)">
+        <label for="g_usePlan" style="color:var(--text)">Ratenzahlung:</label>
+        <input type="number" id="g_planAmt" placeholder="200" min="0" step="50" style="width:120px">
+        <span class="pos-meta">EUR/Monat</span>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="row-flex">
+        <input type="checkbox" id="g_useAff" checked style="width:auto;accent-color:var(--gold)">
+        <label for="g_useAff" style="color:var(--text)">Affiliates:</label>
+        <input type="number" id="g_affCount" placeholder="2" min="0" step="1" style="width:80px">
+        <span class="pos-meta">Klienten mit je</span>
+        <input type="number" id="g_affAmt" placeholder="5 000" min="0" step="100" style="width:120px">
+        <span class="pos-meta">EUR Einmalanlage</span>
+      </div>
+    </div>
+    <div class="form-row" style="gap:24px;margin-top:4px">
+      <div class="row-flex">
+        <label class="toggle"><input type="checkbox" id="g_reinvest"><span class="tog-sl"></span></label>
+        <span style="font-size:13px">Mit Reinvestition</span>
+      </div>
+      <button class="btn btn-gold" onclick="runGoal()">Berechnen</button>
+    </div>
+  </div>
+
+  <div id="goalResults"></div>
+
+</div>
+</div>
+
+<script>
+'use strict';
+
+// ─── STATE ──────────────────────────────────────────────────
+const S = {
+  goldPerGram: 92.50,
+  projection: 2,        // % p.a. – default 2% (user's ROI expectation baseline)
+  cycles: 1,            // display cycles (1 cycle = 36 months)
+  investments: [],
+  plan: { active:false, amount:0, start:0, duration:-1 },
+  affiliates: [],
+  withdrawals: [],
+  reinvest: false,
+  cycleReinvest: false,
+  _id: 1
+};
+const uid = () => S._id++;
+
+// ─── HELPERS ────────────────────────────────────────────────
+const EUR = n => new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n||0);
+const GR  = n => (+n||0).toFixed(3)+' g';
+
+const ORIGIN = new Date(2026, 4, 1); // May 2026 = month 0
+function monthLabel(off) {
+  const d = new Date(ORIGIN.getFullYear(), ORIGIN.getMonth()+off, 1);
+  return d.toLocaleDateString('de-DE',{month:'short',year:'numeric'});
+}
+
+function gpAt(month, gp, proj) {
+  gp   = gp   ?? S.goldPerGram;
+  proj = proj ?? S.projection;
+  const mr = Math.pow(1+proj/100, 1/12)-1;
+  return gp * Math.pow(1+mr, month);
+}
+
+// ─── CALCULATION ENGINE ─────────────────────────────────────
+function calculate(opts = {}) {
+  const investments  = opts.investments  ?? S.investments;
+  const plan         = opts.plan         ?? S.plan;
+  const affiliates   = opts.affiliates   ?? S.affiliates;
+  const withdrawals  = opts.withdrawals  ?? S.withdrawals;
+  const reinvest     = opts.reinvest     ?? S.reinvest;
+  const cycleReinvest = opts.cycleReinvest ?? S.cycleReinvest;
+  const cycles       = opts.cycles       ?? S.cycles;
+  const proj         = opts.projection   ?? S.projection;
+  const gp0          = opts.goldPerGram  ?? S.goldPerGram;
+  const gp = m => gpAt(m, gp0, proj);
+
+  const N = cycles * 36 + 37; // enough tail for last cycle deliveries
+
+  // Build positions from manual investments
+  const positions = investments.map(inv => ({
+    ...inv, grams: inv.principalEUR / gp(inv.startMonth)
+  }));
+
+  // Monthly plan positions
+  if (plan.active && plan.amount > 0) {
+    const maxM = plan.duration >= 0 ? plan.start + plan.duration : N;
+    for (let m = plan.start; m < maxM && m < N; m++) {
+      positions.push({ id:`pl_${m}`, startMonth:m, principalEUR:plan.amount,
+        grams: plan.amount / gp(m), type:'monthly' });
+    }
+  }
+
+  const results = [];
+  let cumReceived   = 0;
+  let cumWithdrawn  = 0;
+  let cumReinvested = 0;
+  let cumGoldGrams  = 0;
+
+  for (let mo = 0; mo < N; mo++) {
+    let pay2  = 0, pay30 = 0, affInc = 0;
+    let delivGrams = 0, delivValue = 0;
+
+    for (const pos of positions) {
+      const d = mo - pos.startMonth;
+      if (d < 0) continue;
+      if (d < 36) {
+        pay2 += pos.principalEUR * 0.02;
+      } else if (d === 36) {
+        pay30        += pos.principalEUR * 0.30;
+        delivGrams   += pos.grams;
+        delivValue   += pos.grams * gp(mo);
+        cumGoldGrams += pos.grams;
+      }
+    }
+
+    for (const aff of affiliates) {
+      for (const ai of aff.investments) {
+        const d = mo - ai.startMonth;
+        if (d >= 0 && d < 36) affInc += ai.principalEUR * 0.01;
+      }
+    }
+
+    const totalIncome = pay2 + pay30 + affInc;
+    cumReceived += totalIncome;
+
+    // Withdrawal
+    const wEntry  = withdrawals.find(w => w.month === mo);
+    const liquid0 = cumReceived - cumWithdrawn - cumReinvested;
+    const wdAmt   = wEntry ? Math.min(wEntry.amount, Math.max(0, liquid0)) : 0;
+    cumWithdrawn += wdAmt;
+
+    // Per-payout reinvestment
+    let riAmt = 0;
+    if (reinvest) {
+      riAmt = Math.max(0, totalIncome - wdAmt);
+      if (riAmt > 0) {
+        positions.push({ id:`ri_${mo}`, startMonth:mo, principalEUR:riAmt,
+          grams: riAmt/gp(mo), type:'reinvestment' });
+        cumReinvested += riAmt;
+      }
+    }
+
+    const liquidBal = cumReceived - cumWithdrawn - cumReinvested;
+
+    // Active gold value (positions still in 36-month window)
+    let activeGoldVal = 0;
+    for (const pos of positions) {
+      const d = mo - pos.startMonth;
+      if (d >= 0 && d <= 35) activeGoldVal += pos.grams * gp(mo);
+    }
+
+    const deliveredVal = cumGoldGrams * gp(mo);
+    const totalWealth  = liquidBal + deliveredVal + activeGoldVal;
+
+    // Cycle-level reinvestment at end of each cycle (month 35, 71, 107…)
+    let cycleRiAmt = 0;
+    if (cycleReinvest && (mo + 1) % 36 === 0 && liquidBal > 0) {
+      cycleRiAmt = liquidBal;
+      positions.push({ id:`cri_${mo}`, startMonth:mo+1, principalEUR:cycleRiAmt,
+        grams: cycleRiAmt/gp(mo+1), type:'cyclereinvest' });
+      cumReinvested += cycleRiAmt;
+    }
+
+    results.push({ month:mo, label:monthLabel(mo),
+      pay2, pay30, affInc, totalIncome,
+      wdAmt, riAmt, cycleRiAmt,
+      delivGrams, delivValue,
+      cumReceived, cumWithdrawn, cumReinvested, cumGoldGrams,
+      liquidBal, activeGoldVal, deliveredVal, totalWealth });
+  }
+
+  return results;
+}
+
+// ─── FIXED CASH ROI (always 102% regardless of gold price) ─
+function cashROI() {
+  // Per cycle: 36 × 2% + 30% = 102% of principal returned in cash
+  return 102.0;
+}
+
+// ─── GOLD PRICE FETCH ────────────────────────────────────────
+async function fetchGoldPrice(btn) {
+  if (btn) { btn.textContent='⏳'; btn.disabled=true; }
+  try {
+    const r   = await fetch('https://api.metals.live/v1/spot/gold');
+    const arr = await r.json();
+    const usdOz = arr[0]?.price ?? arr?.price;
+    if (!usdOz) throw 0;
+    const fx  = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
+    const fxd = await fx.json();
+    const eur = Math.round((usdOz/31.1035)*fxd.rates.EUR*100)/100;
+    S.goldPerGram = eur;
+    document.getElementById('goldPriceInput').value = eur.toFixed(2);
+    updateGoldDisplay(); render();
+  } catch(e) {
+    try {
+      const r2  = await fetch('https://api.frankfurter.app/latest?from=XAU&to=EUR');
+      const d2  = await r2.json();
+      const eur = Math.round((d2.rates.EUR/31.1035)*100)/100;
+      S.goldPerGram = eur; document.getElementById('goldPriceInput').value = eur.toFixed(2);
+      updateGoldDisplay(); render();
+    } catch(e2) { alert('Live-Preis nicht verfügbar. Bitte manuell eingeben.'); }
+  }
+  if (btn) { btn.textContent='↻ Live'; btn.disabled=false; }
+}
+
+function onGoldPrice(v){ S.goldPerGram=parseFloat(v)||92.5; updateGoldDisplay(); render(); }
+function onProjection(v){ S.projection=parseFloat(v); document.getElementById('valProjection').textContent=parseFloat(v).toFixed(1)+' %'; render(); }
+function onCycles(v){ S.cycles=parseInt(v); document.getElementById('valCycles').textContent=v; populateSelects(); render(); }
+function updateGoldDisplay(){ document.getElementById('goldPriceDisplay').textContent=EUR(S.goldPerGram)+'/g'; }
+
+// ─── POPULATE SELECTS ────────────────────────────────────────
+function populateSelects() {
+  const totalMo = S.cycles * 36;
+  ['oneMo','planStart','wdMo'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '';
+    for (let m = 0; m <= totalMo; m++) {
+      const o = document.createElement('option');
+      o.value=m; o.textContent=monthLabel(m); sel.appendChild(o);
+    }
+    if (cur) sel.value=cur;
+  });
+}
+
+// ─── INVESTMENT ACTIONS ──────────────────────────────────────
+function addOneTime() {
+  const amt = parseFloat(document.getElementById('oneAmt').value);
+  const mo  = parseInt(document.getElementById('oneMo').value)||0;
+  if (!amt||amt<=0){ alert('Bitte gültigen Betrag eingeben.'); return; }
+  S.investments.push({ id:uid(), startMonth:mo, principalEUR:amt, type:'own' });
+  document.getElementById('oneAmt').value=''; render();
+}
+function removeInvestment(id){ S.investments=S.investments.filter(i=>i.id!==id); render(); }
+
+function setPlan() {
+  const amt = parseFloat(document.getElementById('planAmt').value);
+  const st  = parseInt(document.getElementById('planStart').value)||0;
+  const dur = parseInt(document.getElementById('planDuration').value);
+  if (!amt||amt<=0){ alert('Bitte gültigen Betrag eingeben.'); return; }
+  S.plan={ active:true, amount:amt, start:st, duration:dur };
+  const el=document.getElementById('planStatus');
+  el.style.display='block'; el.className='info';
+  el.innerHTML=`✓ Sparplan aktiv: <strong>${EUR(amt)}/Monat</strong> ab ${monthLabel(st)}${dur>=0?' für '+dur+' Monate':' (unbegrenzt)'}`;
+  render();
+}
+function clearPlan(){ S.plan={active:false,amount:0,start:0,duration:-1}; document.getElementById('planStatus').style.display='none'; render(); }
+
+function addWithdrawal() {
+  const mo  = parseInt(document.getElementById('wdMo').value)||0;
+  const amt = parseFloat(document.getElementById('wdAmt').value);
+  const note= document.getElementById('wdNote').value.trim();
+  if (!amt||amt<=0){ alert('Bitte gültigen Betrag eingeben.'); return; }
+  S.withdrawals.push({ id:uid(), month:mo, amount:amt, note });
+  document.getElementById('wdAmt').value=''; document.getElementById('wdNote').value='';
+  renderWithdrawals(); render();
+}
+function removeWithdrawal(id){ S.withdrawals=S.withdrawals.filter(w=>w.id!==id); renderWithdrawals(); render(); }
+
+// ─── AFFILIATE ACTIONS ───────────────────────────────────────
+function addAffiliate() {
+  const name=document.getElementById('affName').value.trim();
+  if (!name){ alert('Bitte Namen eingeben.'); return; }
+  S.affiliates.push({ id:uid(), name, investments:[] });
+  document.getElementById('affName').value=''; renderAffiliates(); render();
+}
+function removeAffiliate(id){ S.affiliates=S.affiliates.filter(a=>a.id!==id); renderAffiliates(); render(); }
+
+function addAffInv(affId) {
+  const amt = parseFloat(document.getElementById(`aa_${affId}`).value);
+  const mo  = parseInt(document.getElementById(`am_${affId}`).value)||0;
+  if (!amt||amt<=0){ alert('Bitte gültigen Betrag eingeben.'); return; }
+  const aff=S.affiliates.find(a=>a.id===affId);
+  if (aff) aff.investments.push({ id:uid(), startMonth:mo, principalEUR:amt });
+  renderAffiliates(); render();
+}
+function removeAffInv(affId,invId){
+  const aff=S.affiliates.find(a=>a.id===affId);
+  if (aff) aff.investments=aff.investments.filter(i=>i.id!==invId);
+  renderAffiliates(); render();
+}
+
+// ─── RENDER: POSITIONS ───────────────────────────────────────
+function renderPositions() {
+  let html='';
+  if (S.plan.active) {
+    html+=`<div class="pos-item">
+      <div class="pos-main"><span class="tag tag-monthly">📅 Sparplan</span>
+        <strong>${EUR(S.plan.amount)}/Monat</strong>
+        <span class="pos-meta">ab ${monthLabel(S.plan.start)}${S.plan.duration>=0?' für '+S.plan.duration+' Monate':' (unbegrenzt)'}</span>
+        <span class="pos-meta">≈ ${GR(S.plan.amount/gpAt(S.plan.start))}/Rate • Payout: ${EUR(S.plan.amount*0.02)}/Mo.</span>
+      </div>
+      <div class="pos-right"><button class="btn btn-red btn-sm" onclick="clearPlan()">✕</button></div>
+    </div>`;
+  }
+  for (const inv of S.investments) {
+    const g=inv.principalEUR/gpAt(inv.startMonth);
+    html+=`<div class="pos-item">
+      <div class="pos-main"><span class="tag tag-own">⬡ Einmalinvestition</span>
+        <strong>${EUR(inv.principalEUR)}</strong>
+        <span class="pos-meta">${GR(g)}</span>
+        <span class="pos-meta">Start: ${monthLabel(inv.startMonth)}</span>
+        <span class="pos-meta">Lieferung: ${monthLabel(inv.startMonth+36)}</span>
+      </div>
+      <div class="pos-right">
+        <div style="text-align:right">
+          <div class="c-gold" style="font-size:12px">${EUR(inv.principalEUR*0.02)}/Mo.</div>
+          <div class="pos-meta">+${EUR(inv.principalEUR*0.30)} Bonus</div>
+        </div>
+        <button class="btn btn-red btn-sm" onclick="removeInvestment(${inv.id})">✕</button>
+      </div>
+    </div>`;
+  }
+  document.getElementById('posList').innerHTML = html||'<div class="empty">Noch keine Positionen vorhanden.</div>';
+}
+
+function renderWithdrawals() {
+  const c=document.getElementById('wdList');
+  if (!S.withdrawals.length){ c.innerHTML=''; return; }
+  let html='<div class="sect">Geplante Entnahmen</div>';
+  for (const w of S.withdrawals)
+    html+=`<div class="pos-item">
+      <div class="pos-main">
+        <span class="tag" style="background:rgba(231,76,60,.15);color:var(--red)">💸</span>
+        <strong>${monthLabel(w.month)}</strong>
+        <span class="c-red">${EUR(w.amount)}</span>
+        ${w.note?`<span class="pos-meta">${w.note}`:''}
+      </div>
+      <button class="btn btn-red btn-sm" onclick="removeWithdrawal(${w.id})">✕</button>
+    </div>`;
+  c.innerHTML=html;
+}
+
+function renderAffiliates() {
+  const c=document.getElementById('affList');
+  if (!S.affiliates.length){ c.innerHTML='<div class="empty">Noch keine Klienten vorhanden.</div>'; return; }
+  let html='';
+  for (const aff of S.affiliates) {
+    const totalCap=aff.investments.reduce((s,i)=>s+i.principalEUR,0);
+    const moInc=aff.investments.reduce((s,i)=>s+i.principalEUR*0.01,0);
+    let moOpts='';
+    for (let m=0;m<=S.cycles*36;m++) moOpts+=`<option value="${m}">${monthLabel(m)}</option>`;
+    let invRows='';
+    for (const ai of aff.investments)
+      invRows+=`<div class="pos-item" style="margin-bottom:6px">
+        <div class="pos-main"><span class="tag tag-aff">Investition</span>
+          <strong>${EUR(ai.principalEUR)}</strong>
+          <span class="pos-meta">ab ${monthLabel(ai.startMonth)}</span>
+          <span class="c-blue" style="font-size:12px">→ ${EUR(ai.principalEUR*0.01)}/Mo. für dich</span>
+        </div>
+        <button class="btn btn-red btn-sm" onclick="removeAffInv(${aff.id},${ai.id})">✕</button>
+      </div>`;
+    html+=`<div class="card">
+      <div class="card-title">👤 ${aff.name}
+        <button class="btn btn-red btn-sm" onclick="removeAffiliate(${aff.id})">Entfernen</button>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="kpi" style="flex:1;min-width:130px"><div class="kpi-label">Klienten-Kapital</div><div class="kpi-value c-blue">${EUR(totalCap)}</div></div>
+        <div class="kpi" style="flex:1;min-width:130px"><div class="kpi-label">Deine 1 %/Monat</div><div class="kpi-value c-green">${EUR(moInc)}</div><div class="kpi-sub">× 36 = ${EUR(moInc*36)}</div></div>
+      </div>
+      <div class="sect">Investition hinzufügen</div>
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-group"><label>Betrag (EUR)</label><input type="number" id="aa_${aff.id}" placeholder="5 000" min="1" step="100"></div>
+        <div class="form-group"><label>Startmonat</label><select id="am_${aff.id}">${moOpts}</select></div>
+        <button class="btn btn-outline" onclick="addAffInv(${aff.id})">+ Hinzufügen</button>
+      </div>
+      ${invRows||'<div class="pos-meta">Noch keine Investitionen erfasst.</div>'}
+    </div>`;
+  }
+  c.innerHTML=html;
+}
+
+// ─── RENDER: DASHBOARD ───────────────────────────────────────
+function renderDashboard(data) {
+  const totalMo = S.cycles * 36;
+  // +1: include final delivery month (Monat 36 bei 1 Zyklus) in KPIs and charts
+  const last = data[Math.min(totalMo, data.length-1)];
+
+  const planMonths = S.plan.active
+    ? (S.plan.duration>=0 ? S.plan.duration : Math.max(0, totalMo - S.plan.start))
+    : 0;
+  const ownCap = S.investments.reduce((s,i)=>s+i.principalEUR,0)
+    + (S.plan.active ? S.plan.amount * Math.min(planMonths, Math.max(0,totalMo-S.plan.start)) : 0);
+
+  const totalROI = ownCap>0 ? ((last.totalWealth/ownCap-1)*100).toFixed(1)+' %' : '—';
+  const cashROIVal = ownCap>0 ? ((last.cumReceived/ownCap)*100).toFixed(1)+' %' : '—';
+
+  document.getElementById('kpiGrid').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Eigenes Kapital investiert</div><div class="kpi-value c-gold">${EUR(ownCap)}</div></div>
+    <div class="kpi"><div class="kpi-label">Cash-ROI (nur Auszahlungen)</div><div class="kpi-value c-gold">${cashROIVal}</div>
+      <div class="kpi-sub">36×2%+30% = 102 % garantiert</div></div>
+    <div class="kpi"><div class="kpi-label">Gesamt-ROI inkl. Gold (${S.projection}%/Jahr)</div><div class="kpi-value c-green">${totalROI}</div>
+      <div class="kpi-sub">bei 2%/Jahr ≈ 108 % nach 1 Zyklus</div></div>
+    <div class="kpi"><div class="kpi-label">Gesamte Erträge (Cash)</div><div class="kpi-value c-green">${EUR(last.cumReceived)}</div></div>
+    <div class="kpi"><div class="kpi-label">Liquides Kapital</div><div class="kpi-value">${EUR(last.liquidBal)}</div></div>
+    <div class="kpi"><div class="kpi-label">Phys. Gold geliefert</div><div class="kpi-value c-gold">${GR(last.cumGoldGrams)}</div><div class="kpi-sub">${EUR(last.deliveredVal)}</div></div>
+    <div class="kpi"><div class="kpi-label">Aktives Gold (Händler)</div><div class="kpi-value c-blue">${EUR(last.activeGoldVal)}</div></div>
+    <div class="kpi"><div class="kpi-label">Gesamtvermögen</div><div class="kpi-value c-green">${EUR(last.totalWealth)}</div></div>
+  `;
+  updateCharts(data, totalMo);
+}
+
+// ─── CHARTS ──────────────────────────────────────────────────
+const CHT={};
+function mkChart(id,type,data,options){
+  if(CHT[id]) CHT[id].destroy();
+  const ctx=document.getElementById(id);
+  if(!ctx) return;
+  CHT[id]=new Chart(ctx,{type,data,options});
+}
+
+function updateCharts(data, totalMo) {
+  // +1: include the final delivery/bonus month so the 30%-Bonus bar and Goldlieferung sichtbar sind
+  const disp=data.slice(0, totalMo+1);
+  const labels=disp.map(d=>d.label);
+  const baseOpts={
+    responsive:true, maintainAspectRatio:true,
+    plugins:{ legend:{ labels:{ color:'#8A8A9A', font:{size:11}, boxWidth:12 }},
+      tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}}},
+    scales:{
+      x:{ ticks:{ color:'#8A8A9A', maxRotation:45, font:{size:9}}, grid:{ color:'rgba(255,255,255,.04)'}},
+      y:{ ticks:{ color:'#8A8A9A', callback:v=>EUR(v), font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}}
+    }
+  };
+
+  mkChart('cTotal','line',{ labels, datasets:[
+    { label:'Gesamtvermögen', data:disp.map(d=>d.totalWealth), borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,.1)', fill:true, tension:.35, pointRadius:0 },
+    { label:'Liquides Kapital', data:disp.map(d=>d.liquidBal), borderColor:'#2ECC71', backgroundColor:'rgba(46,204,113,.07)', fill:true, tension:.35, pointRadius:0 },
+    { label:'Goldwert geliefert', data:disp.map(d=>d.deliveredVal), borderColor:'#FFD700', tension:.35, pointRadius:0 }
+  ]}, baseOpts);
+
+  mkChart('cMonthly','bar',{ labels, datasets:[
+    { label:'2 % Payouts', data:disp.map(d=>d.pay2),  backgroundColor:'#C8A951', stack:'s' },
+    { label:'30 % Bonus',  data:disp.map(d=>d.pay30), backgroundColor:'#FFD700', stack:'s' },
+    { label:'Affiliate 1 %', data:disp.map(d=>d.affInc), backgroundColor:'#3498DB', stack:'s' }
+  ]}, baseOpts);
+
+  const goldOpts={...baseOpts, scales:{
+    x:{ ticks:{ color:'#8A8A9A', maxRotation:45, font:{size:9}}, grid:{ color:'rgba(255,255,255,.04)'}},
+    y:{ position:'left', ticks:{ color:'#8A8A9A', callback:v=>v.toFixed(1)+' g', font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
+    y2:{ position:'right', ticks:{ color:'#8A8A9A', callback:v=>EUR(v), font:{size:10}}, grid:{ drawOnChartArea:false }}
+  }, plugins:{...baseOpts.plugins, tooltip:{ callbacks:{ label:ctx=>ctx.dataset.yAxisID==='y2'?` ${EUR(ctx.parsed.y)}`:` ${ctx.parsed.y.toFixed(3)} g`}}}};
+
+  mkChart('cGold','line',{ labels, datasets:[
+    { label:'Gold kumuliert (g)', data:disp.map(d=>d.cumGoldGrams), borderColor:'#C8A951', tension:.35, pointRadius:0, yAxisID:'y' },
+    { label:'Goldwert (€)', data:disp.map(d=>d.deliveredVal), borderColor:'#FFD700', tension:.35, pointRadius:0, yAxisID:'y2', borderDash:[4,2] }
+  ]}, goldOpts);
+
+  const tot2=disp.reduce((s,d)=>s+d.pay2,0);
+  const tot30=disp.reduce((s,d)=>s+d.pay30,0);
+  const totAff=disp.reduce((s,d)=>s+d.affInc,0);
+  const totRe=disp[disp.length-1]?.cumReinvested||0;
+  mkChart('cBreak','doughnut',{
+    labels:['2 % Monatspayouts','30 % Treueboni','Affiliate 1 %','Reinvestiert'],
+    datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#FFD700','#3498DB','#2ECC71'], borderWidth:0 }]
+  },{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{ color:'#8A8A9A', font:{size:11}, boxWidth:12 }}, tooltip:{ callbacks:{ label:ctx=>` ${EUR(ctx.parsed)}`}}}});
+}
+
+// ─── RENDER: TIMELINE ────────────────────────────────────────
+function renderTimeline(data) {
+  const totalMo=S.cycles*36;
+  // +1 so the final bonus/delivery month is visible in the table
+  const disp=data.slice(0, totalMo+1);
+  document.getElementById('tlHead').innerHTML=`<tr>
+    <th>Monat</th><th>Zyklus</th><th>2 % Payout</th><th>30 % Bonus</th><th>Affiliate</th>
+    <th>Gesamt</th><th>Entnahme</th><th>Reinvest</th><th>Goldlieferung</th>
+    <th>Liquiditätssaldo</th><th>Akt. Gold</th><th>Gesamtvermögen</th>
+  </tr>`;
+  let rows='';
+  for (const d of disp) {
+    const zyklusNr = Math.floor(d.month/36)+1;
+    const isCycleStart = d.month>0 && d.month%36===0;
+    const hasBonus = d.pay30>0;
+    const hasDel   = d.delivGrams>0;
+    rows+=`<tr class="${hasBonus?'hl':''} ${isCycleStart?'cycle-start':''}">
+      <td>${d.label}${hasBonus?' <span class="tag tag-bonus">🎁 Bonus</span>':''}</td>
+      <td><span class="cycle-badge">Z${zyklusNr}</span></td>
+      <td class="c-gold">${d.pay2>0?EUR(d.pay2):'—'}</td>
+      <td class="c-gold">${d.pay30>0?EUR(d.pay30):'—'}</td>
+      <td class="c-blue">${d.affInc>0?EUR(d.affInc):'—'}</td>
+      <td><strong>${d.totalIncome>0?EUR(d.totalIncome):'—'}</strong></td>
+      <td class="c-red">${d.wdAmt>0?'−'+EUR(d.wdAmt):'—'}</td>
+      <td class="c-green">${d.riAmt>0?EUR(d.riAmt):d.cycleRiAmt>0?'[Zyklus] '+EUR(d.cycleRiAmt):'—'}</td>
+      <td>${hasDel?`<span class="c-gold">${GR(d.delivGrams)}</span> ${EUR(d.delivValue)}`:'—'}</td>
+      <td>${EUR(d.liquidBal)}</td>
+      <td class="c-blue">${EUR(d.activeGoldVal)}</td>
+      <td><strong class="c-green">${EUR(d.totalWealth)}</strong></td>
+    </tr>`;
+  }
+  document.getElementById('tlBody').innerHTML=rows;
+}
+
+// ─── GOAL CALCULATOR ─────────────────────────────────────────
+function runGoal() {
+  const goalAmt  = parseFloat(document.getElementById('goalAmt').value);
+  const goalType = document.getElementById('goalType').value;
+  const horizon  = parseInt(document.getElementById('goalCycles').value);
+  if (!goalAmt||goalAmt<=0){ alert('Bitte Zielbetrag eingeben.'); return; }
+
+  const useOne  = document.getElementById('g_useOne').checked;
+  const usePlan = document.getElementById('g_usePlan').checked;
+  const useAff  = document.getElementById('g_useAff').checked;
+  const withRi  = document.getElementById('g_reinvest').checked;
+
+  const oneAmt   = parseFloat(document.getElementById('g_oneAmt').value)||0;
+  const planAmt  = parseFloat(document.getElementById('g_planAmt').value)||0;
+  const affCount = parseInt(document.getElementById('g_affCount').value)||0;
+  const affAmt   = parseFloat(document.getElementById('g_affAmt').value)||0;
+
+  const getVal = d => goalType==='liquid' ? d.liquidBal
+                   :  goalType==='total'  ? d.totalWealth
+                   :                       d.totalIncome;
+
+  // simulate with given params
+  function sim(one, plan, affCnt, affA, ri) {
+    const invs = one>0 ? [{ id:0, startMonth:0, principalEUR:one, type:'own' }] : [];
+    const pl   = plan>0 ? { active:true, amount:plan, start:0, duration:-1 } : { active:false, amount:0, start:0, duration:-1 };
+    const affs = affCnt>0 && affA>0 ? [{ id:99, name:'Affiliates', investments:
+      Array.from({length:affCnt},(_,i)=>({ id:i, startMonth:0, principalEUR:affA }))
+    }] : [];
+    const d = calculate({ investments:invs, plan:pl, affiliates:affs, withdrawals:[], reinvest:ri,
+      cycleReinvest:false, cycles: Math.ceil(horizon/36)+1, projection:S.projection, goldPerGram:S.goldPerGram });
+    return d[Math.min(horizon, d.length-1)];
+  }
+
+  // Current config result
+  const cur = sim(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
+  const curVal = getVal(cur);
+
+  // When does current combo reach goal?
+  function firstMonth(one, plan, affCnt, affA, ri) {
+    const invs = one>0 ? [{ id:0, startMonth:0, principalEUR:one, type:'own' }] : [];
+    const pl   = plan>0 ? { active:true, amount:plan, start:0, duration:-1 } : { active:false, amount:0, start:0, duration:-1 };
+    const affs = affCnt>0 && affA>0 ? [{ id:99, name:'Affiliates', investments:
+      Array.from({length:affCnt},(_,i)=>({ id:i, startMonth:0, principalEUR:affA }))
+    }] : [];
+    const d = calculate({ investments:invs, plan:pl, affiliates:affs, withdrawals:[], reinvest:ri,
+      cycleReinvest:false, cycles:5, projection:S.projection, goldPerGram:S.goldPerGram });
+    for (const row of d) { if (getVal(row)>=goalAmt) return row; }
+    return null;
+  }
+
+  // Binary search helpers
+  function bsearch(fn, lo=0, hi=goalAmt*20, iters=60) {
+    for (let i=0;i<iters;i++){ const mid=(lo+hi)/2; fn(mid)>=goalAmt?hi=mid:lo=mid; }
+    return hi;
+  }
+
+  const curReach = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
+  const curReachNoRi = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, false);
+
+  // Find needed amounts
+  const needOne    = bsearch(v => getVal(sim(v, 0, 0, 0, withRi)));
+  const needPlan   = bsearch(v => getVal(sim(0, v, 0, 0, withRi)));
+  const needAff1k  = bsearch(v => getVal(sim(0, 0, Math.round(v), 1000, withRi))); // clients @ 1k
+  const needAff5k  = bsearch(v => getVal(sim(0, 0, Math.round(v), 5000, withRi))); // clients @ 5k
+  const needAff10k = bsearch(v => getVal(sim(0, 0, Math.round(v), 10000, withRi)));// clients @ 10k
+
+  const pct = goalAmt>0 ? (curVal/goalAmt*100).toFixed(1) : 0;
+  const goalLabel = goalType==='liquid'?'Liquides Kapital':goalType==='total'?'Gesamtvermögen':'Monatliche Einnahmen';
+
+  let html=`<div class="card">
+    <div class="card-title">🎯 Ergebnisse – Ziel: ${EUR(goalAmt)} ${goalLabel} in ${horizon} Monaten</div>
+
+    <div class="sect">Deine aktuelle Kombination</div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Erreichter Wert (${horizon} Mo.)</div>
+        <div class="kpi-value ${curVal>=goalAmt?'c-green':'c-red'}">${EUR(curVal)}</div>
+        <div class="kpi-sub">${pct} % des Ziels</div></div>
+      <div class="kpi"><div class="kpi-label">Fehlbetrag / Überschuss</div>
+        <div class="kpi-value ${curVal>=goalAmt?'c-green':'c-red'}">${curVal>=goalAmt?'+':'-'}${EUR(Math.abs(curVal-goalAmt))}</div></div>
+      <div class="kpi"><div class="kpi-label">Zielerreichung MIT Reinvest</div>
+        <div class="kpi-value c-green">${curReach?'Monat '+curReach.month+' ('+curReach.label+')':'> 180 Monate'}</div></div>
+      <div class="kpi"><div class="kpi-label">Zielerreichung OHNE Reinvest</div>
+        <div class="kpi-value c-muted">${curReachNoRi?'Monat '+curReachNoRi.month+' ('+curReachNoRi.label+')':'> 180 Monate'}</div></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sect">Schnellwege – was brauchst du für ${EUR(goalAmt)} in ${horizon} Monaten?</div>
+    <div class="goal-grid">
+      <div class="goal-scenario">
+        <h4>Nur Einmaleinlage</h4>
+        <div class="kpi-value c-gold" style="font-size:22px;margin-bottom:4px">${EUR(needOne)}</div>
+        <div class="kpi-sub">einmalig investieren</div>
+      </div>
+      <div class="goal-scenario">
+        <h4>Nur Ratenzahlung</h4>
+        <div class="kpi-value c-blue" style="font-size:22px;margin-bottom:4px">${EUR(needPlan)}</div>
+        <div class="kpi-sub">pro Monat</div>
+      </div>
+      <div class="goal-scenario">
+        <h4>Nur Affiliates (à 1.000 €)</h4>
+        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${Math.ceil(needAff1k)} Klienten</div>
+        <div class="kpi-sub">je 1.000 € Einmalanlage</div>
+      </div>
+      <div class="goal-scenario">
+        <h4>Nur Affiliates (à 5.000 €)</h4>
+        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${Math.ceil(needAff5k)} Klienten</div>
+        <div class="kpi-sub">je 5.000 € Einmalanlage</div>
+      </div>
+      <div class="goal-scenario">
+        <h4>Nur Affiliates (à 10.000 €)</h4>
+        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${Math.ceil(needAff10k)} Klienten</div>
+        <div class="kpi-sub">je 10.000 € Einmalanlage</div>
+      </div>
+    </div>
+
+    <div class="info" style="margin-top:14px;font-size:12px">
+      ℹ️ <strong>Cash-ROI (garantiert, unabhängig vom Goldpreis):</strong>
+      36 × 2 % + 30 % Bonus = <strong>102 % auf das eingesetzte Kapital</strong> pro Zyklus (36 Monate).
+      Mit ${S.projection} % Goldpreissteigerung/Jahr ergibt sich zusätzlich Goldwertzuwachs.
+      Deine Kalkulation (108 %) ist bei ~2 % Gold­steigerung/Jahr (aktuell eingestellt) und inkl. Goldlieferung korrekt.
+    </div>
+  </div>`;
+
+  document.getElementById('goalResults').innerHTML=html;
+}
+
+// ─── TAB SWITCHING ───────────────────────────────────────────
+function switchTab(btn) {
+  const tab=btn.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  if (tab==='dashboard'||tab==='timeline') {
+    const d=calculate();
+    if (tab==='dashboard') renderDashboard(d);
+    if (tab==='timeline')  renderTimeline(d);
+  }
+  if (tab==='affiliates') renderAffiliates();
+}
+
+// ─── MAIN RENDER ─────────────────────────────────────────────
+function render() {
+  const data=calculate();
+  populateSelects();
+  renderPositions();
+  renderWithdrawals();
+  const activeTab=document.querySelector('.tab-content.active')?.id;
+  if (activeTab==='tab-dashboard') renderDashboard(data);
+  if (activeTab==='tab-timeline')  renderTimeline(data);
+  if (activeTab==='tab-affiliates') renderAffiliates();
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  updateGoldDisplay(); populateSelects(); render();
+});
+</script>
+</body>
+</html>
