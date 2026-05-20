@@ -1,176 +1,372 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GOLD Investment Kalkulator</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>callidus AURUM · TGI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 <style>
-:root{--gold:#C8A951;--gold2:#FFD700;--dark:#141416;--dark2:#1E1E22;--dark3:#2A2A2F;--dark4:#363640;--text:#F0F0F5;--muted:#8A8A9A;--green:#2ECC71;--red:#E74C3C;--blue:#3498DB;--purple:#9B59B6;--radius:10px;--border:rgba(255,255,255,.08)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--dark);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;font-size:14px}
+:root{
+  --gold:#C8A951;--gold2:#F0C040;--gold3:#EAD5A0;--gold4:#FFF3C0;
+  --gold-dim:rgba(200,169,81,.1);--gold-glow:rgba(200,169,81,.22);
+  --bg:#06060A;--surface:#0A0A0E;--card:rgba(16,16,22,.92);--card2:rgba(20,20,28,.9);
+  --border:rgba(200,169,81,.1);--border2:rgba(255,255,255,.055);
+  --text:#EDE8DC;--muted:#7C7670;--muted2:#4C4846;
+  --green:#3DB870;--red:#E05252;--blue:#5B9CF6;--purple:#A78BFA;
+  --radius:12px;--sidebar-w:240px
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-header{background:var(--dark2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
-.logo{font-size:18px;font-weight:700;color:var(--gold);white-space:nowrap}
+body{
+  font-family:'Inter',-apple-system,sans-serif;color:var(--text);min-height:100vh;font-size:13.5px;
+  background-color:var(--bg);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='110'%3E%3Crect x='7' y='7' width='206' height='96' rx='10' fill='none' stroke='rgba(200%2C169%2C81%2C0.052)' stroke-width='1'/%3E%3Crect x='15' y='15' width='190' height='80' rx='6' fill='none' stroke='rgba(200%2C169%2C81%2C0.028)' stroke-width='1'/%3E%3Cline x1='7' y1='32' x2='213' y2='32' stroke='rgba(200%2C169%2C81%2C0.025)' stroke-width='1'/%3E%3Cline x1='7' y1='78' x2='213' y2='78' stroke='rgba(200%2C169%2C81%2C0.025)' stroke-width='1'/%3E%3C/svg%3E") 0 0/220px 110px,
+    radial-gradient(ellipse 60% 45% at 7% 93%,rgba(200,169,81,.07) 0%,transparent 100%),
+    radial-gradient(ellipse 48% 38% at 93% 7%,rgba(245,192,64,.04) 0%,transparent 100%),
+    radial-gradient(ellipse 35% 30% at 50% 50%,rgba(200,169,81,.025) 0%,transparent 100%)
+}
 
-.gold-block{display:flex;align-items:center;gap:10px;background:var(--dark3);border-radius:var(--radius);padding:8px 14px;border:1px solid var(--border)}
-.gold-block label{font-size:11px;color:var(--muted);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
-.gold-big{font-size:18px;font-weight:700;color:var(--gold);min-width:100px}
+#app{display:flex;min-height:100vh}
 
-.slider-wrap{display:flex;align-items:center;gap:8px;white-space:nowrap}
-.slider-wrap label{font-size:12px;color:var(--muted)}
-input[type=range]{accent-color:var(--gold);width:100px}
-.slider-val{font-size:13px;font-weight:600;color:var(--gold);min-width:44px}
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;
+  z-index:200;overflow:hidden
+}
 
-.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:opacity .15s}
-.btn:hover{opacity:.85}.btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-gold{background:var(--gold);color:#000}.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-.btn-red{background:var(--red);color:#fff}.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
-.btn-blue{background:var(--blue);color:#fff}.btn-green{background:var(--green);color:#000}
+.sidebar-logo{
+  padding:22px 20px 18px;border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  background:linear-gradient(180deg,rgba(200,169,81,.04) 0%,transparent 100%)
+}
+.tgi-logo{
+  height:48px;width:auto;
+  filter:drop-shadow(0 2px 12px rgba(200,169,81,.35));
+  transition:filter .3s
+}
+.tgi-logo:hover{filter:drop-shadow(0 2px 20px rgba(200,169,81,.6))}
+.logo-wordmark{
+  font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;line-height:1;
+  letter-spacing:.04em;
+  background:linear-gradient(115deg,#7A5C10 0%,#F5C842 38%,#C8A951 58%,#F5C842 74%,#7A5C10 100%);
+  background-size:240% auto;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 5s linear infinite
+}
+.logo-tagline{font-size:9.5px;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase}
+@keyframes shimmer{0%{background-position:0% center}100%{background-position:240% center}}
 
-nav.tabs{background:var(--dark2);display:flex;gap:4px;padding:8px 24px;border-bottom:1px solid var(--border);overflow-x:auto}
-.tab-btn{padding:7px 18px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;white-space:nowrap;transition:all .15s}
-.tab-btn.active{background:var(--gold);color:#000;font-weight:600}
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:10px 14px;
+  border-radius:10px;border:1px solid transparent;background:none;
+  color:var(--muted);cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;
+  font-weight:400;text-align:left;width:100%;transition:all .17s ease
+}
+.nav-item:hover{color:var(--gold3);background:rgba(200,169,81,.06);border-color:rgba(200,169,81,.09)}
+.nav-item.active{
+  background:linear-gradient(135deg,rgba(200,169,81,.15),rgba(200,169,81,.06));
+  border-color:rgba(200,169,81,.24);color:var(--gold2);font-weight:500
+}
+.nav-item svg{flex-shrink:0;opacity:.55;transition:opacity .17s}
+.nav-item.active svg,.nav-item:hover svg{opacity:1}
+.nav-label{flex:1}
+
+.sidebar-gold{
+  padding:16px 16px 18px;border-top:1px solid var(--border);
+  background:linear-gradient(0deg,rgba(200,169,81,.04) 0%,transparent 100%)
+}
+.sidebar-gold-lbl{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sidebar-gold-price{
+  font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;
+  color:var(--gold2);display:flex;align-items:baseline;gap:3px;margin-bottom:10px
+}
+.sidebar-gold-price .unit{font-size:11px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:400}
+.sidebar-gold-ctrls{display:flex;gap:6px;align-items:center}
+.sidebar-gold-ctrls input[type=number]{width:82px!important;font-size:12px!important;padding:5px 9px!important}
+
+/* ── MAIN ── */
+.main-area{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.top-bar{
+  background:rgba(6,6,10,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);padding:12px 28px;
+  display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:100
+}
+.tb-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.tb-row{display:flex;align-items:center;gap:8px}
+input[type=range]{accent-color:var(--gold);width:110px}
+.slider-val{font-size:13px;font-weight:600;color:var(--gold);min-width:50px;font-variant-numeric:tabular-nums}
+.tb-divider{width:1px;height:32px;background:var(--border)}
+
+/* ── PAGE ── */
+.page{max-width:1360px;margin:0 auto;padding:24px 28px}
 .tab-content{display:none}.tab-content.active{display:block}
 
-.page{max-width:1400px;margin:0 auto;padding:24px}
-.card{background:var(--dark2);border-radius:var(--radius);border:1px solid var(--border);padding:20px;margin-bottom:18px}
-.card-title{font-size:15px;font-weight:600;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+/* ── CARDS ── */
+.card{
+  background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-radius:var(--radius);border:1px solid var(--border);
+  padding:22px 24px;margin-bottom:16px;position:relative;overflow:hidden
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,169,81,.3),transparent)
+}
+.card-title{
+  font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--gold3);
+  margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;letter-spacing:.02em
+}
+.card-icon{display:inline-flex;align-items:center;gap:9px;color:var(--gold)}
 
+/* ── FORMS ── */
 .form-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 .form-group{display:flex;flex-direction:column;gap:4px}
-.form-group label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-input[type=number],input[type=text],select{background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;width:160px}
-input[type=number]:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--gold)}
-select{cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%238A8A9A' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+.form-group label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+input[type=number],input[type=text],select{
+  background:rgba(255,255,255,.04);border:1px solid var(--border2);
+  border-radius:8px;padding:8px 12px;color:var(--text);
+  font-size:13.5px;font-family:'Inter',sans-serif;width:160px;
+  transition:border-color .15s,box-shadow .15s
+}
+input[type=number]:focus,input[type=text]:focus,select:focus{
+  outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,169,81,.1)
+}
+select{
+  cursor:pointer;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%237C7670' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:26px
+}
 
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:20px}
-.kpi{background:var(--dark3);border-radius:var(--radius);padding:14px;border:1px solid var(--border)}
-.kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
-.kpi-value{font-size:20px;font-weight:700}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
+  border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;
+  font-family:'Inter',sans-serif;transition:all .17s ease;white-space:nowrap
+}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-gold{
+  background:linear-gradient(135deg,#A88018,#D4AE40,#C8A951);
+  color:#0A0800;font-weight:600;
+  box-shadow:0 2px 14px rgba(200,169,81,.22)
+}
+.btn-gold:hover{box-shadow:0 4px 22px rgba(200,169,81,.4);opacity:1}
+.btn-outline{background:transparent;border:1px solid rgba(200,169,81,.22);color:var(--gold3)}
+.btn-outline:hover{border-color:var(--gold);background:rgba(200,169,81,.07);opacity:1}
+.btn-red{background:rgba(224,82,82,.12);color:var(--red);border:1px solid rgba(224,82,82,.22)}
+.btn-red:hover{background:rgba(224,82,82,.22);opacity:1}
+.btn-blue{background:rgba(91,156,246,.12);color:var(--blue);border:1px solid rgba(91,156,246,.22)}
+.btn-green{background:rgba(61,184,112,.12);color:var(--green);border:1px solid rgba(61,184,112,.22)}
+.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:6px}
 
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:20px}
+.kpi{
+  background:var(--card2);backdrop-filter:blur(8px);border-radius:10px;
+  padding:16px;border:1px solid var(--border);position:relative;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s
+}
+.kpi::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:0;transition:opacity .2s
+}
+.kpi:hover{border-color:rgba(200,169,81,.24);box-shadow:0 4px 20px rgba(200,169,81,.08)}
+.kpi:hover::after{opacity:.5}
+.kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.kpi-value{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:10.5px;color:var(--muted);margin-top:3px}
+
+/* ── CHARTS ── */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
 @media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
-.chart-card{background:var(--dark2);border-radius:var(--radius);border:1px solid var(--border);padding:16px}
-.chart-title{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px}
+.chart-card{
+  background:var(--card);backdrop-filter:blur(12px);border-radius:var(--radius);
+  border:1px solid var(--border);padding:18px;position:relative;overflow:hidden
+}
+.chart-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,169,81,.24),transparent)
+}
+.chart-title{font-size:10.5px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px}
 canvas{max-height:240px!important}
 
+/* ── TABLE ── */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;white-space:nowrap}
-tr:hover td{background:rgba(255,255,255,.02)}
-tr.hl td{background:rgba(200,169,81,.08)}
-tr.cycle-start td{border-top:2px solid rgba(200,169,81,.4)}
+th{text-align:left;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;white-space:nowrap}
+tr:hover td{background:rgba(200,169,81,.03)}
+tr.hl td{background:rgba(200,169,81,.07)}
+tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
 
-.toggle{position:relative;display:inline-block;width:42px;height:22px;flex-shrink:0}
+/* ── TOGGLE ── */
+.toggle{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
-.tog-sl{position:absolute;inset:0;background:var(--dark4);border-radius:22px;cursor:pointer;border:1px solid var(--border);transition:.2s}
-.tog-sl::before{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;background:var(--muted);border-radius:50%;transition:.2s}
+.tog-sl{position:absolute;inset:0;background:rgba(255,255,255,.08);border-radius:24px;cursor:pointer;border:1px solid var(--border2);transition:.2s}
+.tog-sl::before{content:'';position:absolute;left:4px;top:4px;width:14px;height:14px;background:var(--muted);border-radius:50%;transition:.2s}
 .toggle input:checked+.tog-sl{background:var(--gold);border-color:var(--gold)}
-.toggle input:checked+.tog-sl::before{transform:translateX(20px);background:#000}
+.toggle input:checked+.tog-sl::before{transform:translateX(20px);background:#080600}
 
-.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
-.tag-own{background:rgba(200,169,81,.15);color:var(--gold)}
-.tag-monthly{background:rgba(155,89,182,.15);color:var(--purple)}
-.tag-reinvest{background:rgba(46,204,113,.15);color:var(--green)}
-.tag-aff{background:rgba(52,152,219,.15);color:var(--blue)}
-.tag-bonus{background:rgba(255,215,0,.15);color:var(--gold2)}
-.tag-cycle{background:rgba(231,76,60,.15);color:var(--red)}
+/* ── TAGS ── */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.tag-own{background:rgba(200,169,81,.1);color:var(--gold);border:1px solid rgba(200,169,81,.2)}
+.tag-monthly{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+.tag-reinvest{background:rgba(61,184,112,.1);color:var(--green);border:1px solid rgba(61,184,112,.2)}
+.tag-aff{background:rgba(91,156,246,.1);color:var(--blue);border:1px solid rgba(91,156,246,.2)}
+.tag-bonus{background:rgba(240,192,64,.1);color:var(--gold2);border:1px solid rgba(240,192,64,.2)}
+.tag-cycle{background:rgba(224,82,82,.1);color:var(--red);border:1px solid rgba(224,82,82,.2)}
 
-.pos-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--dark3);border-radius:8px;padding:10px 14px;border:1px solid var(--border);margin-bottom:7px;flex-wrap:wrap}
+/* ── POSITIONS ── */
+.pos-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(255,255,255,.025);border-radius:10px;padding:12px 16px;
+  border:1px solid var(--border2);margin-bottom:8px;flex-wrap:wrap;transition:border-color .15s
+}
+.pos-item:hover{border-color:rgba(200,169,81,.16)}
 .pos-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1}
 .pos-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .pos-meta{font-size:11px;color:var(--muted)}
 
-.info{background:rgba(200,169,81,.1);border:1px solid rgba(200,169,81,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--muted);margin-bottom:12px}
-.info-green{background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.25);color:var(--green)}
-.info-red{background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.25);color:var(--red)}
-.info-blue{background:rgba(52,152,219,.1);border-color:rgba(52,152,219,.25);color:var(--blue)}
+/* ── INFO ── */
+.info{background:rgba(200,169,81,.07);border:1px solid rgba(200,169,81,.18);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.info-green{background:rgba(61,184,112,.07);border-color:rgba(61,184,112,.2);color:var(--green)}
+.info-red{background:rgba(224,82,82,.07);border-color:rgba(224,82,82,.2);color:var(--red)}
+.info-blue{background:rgba(91,156,246,.07);border-color:rgba(91,156,246,.2);color:var(--blue)}
 
-.sect{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:12px 0 7px}
-.divider{height:1px;background:var(--border);margin:14px 0}
+/* ── MISC ── */
+.sect{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 8px}
+.divider{height:1px;background:var(--border);margin:16px 0}
 .row-flex{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.empty{text-align:center;padding:24px;color:var(--muted);font-size:13px}
+.empty{text-align:center;padding:32px;color:var(--muted2);font-size:13px}
+.c-gold{color:var(--gold)}.c-gold2{color:var(--gold2)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}.c-red{color:var(--red)}.c-muted{color:var(--muted)}.c-purple{color:var(--purple)}
 
-.c-gold{color:var(--gold)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}
-.c-red{color:var(--red)}.c-muted{color:var(--muted)}.c-purple{color:var(--purple)}
-.c-gold2{color:var(--gold2)}
-
-/* Goal calculator grid */
-.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:700px){.goal-grid{grid-template-columns:1fr}}
-.goal-scenario{background:var(--dark3);border-radius:var(--radius);border:1px solid var(--border);padding:16px}
-.goal-scenario h4{font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em}
-
-.cycle-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(200,169,81,.15);color:var(--gold);border:1px solid rgba(200,169,81,.3)}
-.aff-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px}
-.kpi-section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;margin-top:4px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.goal-scenario{background:rgba(255,255,255,.025);border-radius:10px;border:1px solid var(--border2);padding:16px;transition:border-color .15s}
+.goal-scenario:hover{border-color:rgba(200,169,81,.2)}
+.goal-scenario h4{font-size:10.5px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em}
+.cycle-badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(200,169,81,.1);color:var(--gold);border:1px solid rgba(200,169,81,.22)}
+.aff-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(162px,1fr));gap:10px;margin-bottom:20px}
+.kpi-section-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border)}
 .pdf-btn-wrap{display:flex;justify-content:flex-end;margin-bottom:16px}
 
-@media print{
-  body{background:#fff!important;color:#000!important}
-  .no-print{display:none!important}
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;border-right:none;border-bottom:1px solid var(--border)}
+  .sidebar-logo{padding:10px 14px;border-bottom:none;border-right:1px solid var(--border);flex-direction:row;align-items:center;gap:10px;background:none}
+  .tgi-logo{height:32px}.logo-tagline{display:none}
+  .sidebar-gold{display:none}
+  .sidebar-nav{flex-direction:row;padding:6px 8px;gap:2px;overflow-x:auto}
+  .nav-label{display:none}.nav-item{padding:8px 11px;gap:0}
+  #app{flex-direction:column}.main-area{margin-left:0}
 }
-
-/* Print view styles (used for PDF generation) */
-#printView{display:none}
-#printView.visible{display:block}
+@media print{body{background:#fff!important;color:#000!important}.no-print{display:none!important}}
 </style>
 </head>
 <body>
+<div id="app">
 
-<header>
-  <div class="logo">⬡ GOLD Kalkulator</div>
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar no-print">
+  <div class="sidebar-logo">
+    <img src="images/TGI-Icon.png" alt="TGI" class="tgi-logo">
+    <div class="logo-wordmark">callidus AURUM</div>
+    <div class="logo-tagline">Physisches Gold · Rendite &amp; Planung</div>
+  </div>
 
-  <div class="gold-block">
-    <div>
-      <label>Goldpreis €/g</label>
-      <div class="gold-big" id="goldPriceDisplay">–</div>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" data-tab="investments" onclick="switchTab(this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+      <span class="nav-label">Investitionen</span>
+    </button>
+    <button class="nav-item" data-tab="affiliates" onclick="switchTab(this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span class="nav-label">Affiliates</span>
+    </button>
+    <button class="nav-item" data-tab="dashboard" onclick="switchTab(this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+      <span class="nav-label">Dashboard</span>
+    </button>
+    <button class="nav-item" data-tab="timeline" onclick="switchTab(this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="nav-label">Zeitverlauf</span>
+    </button>
+    <button class="nav-item" data-tab="goal" onclick="switchTab(this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <span class="nav-label">Zielrechner</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-gold">
+    <div class="sidebar-gold-lbl">Goldpreis aktuell</div>
+    <div class="sidebar-gold-price">
+      <span id="goldPriceDisplay">—</span>
+      <span class="unit">&thinsp;/g</span>
     </div>
-    <input type="number" id="goldPriceInput" value="92.50" min="1" step="0.01" style="width:90px" oninput="onGoldPrice(this.value)">
-    <button class="btn btn-outline btn-sm" onclick="fetchGoldPrice(this)">↻ Live</button>
+    <div class="sidebar-gold-ctrls">
+      <input type="number" id="goldPriceInput" value="92.50" min="1" step="0.01" oninput="onGoldPrice(this.value)">
+      <button class="btn btn-outline btn-sm" onclick="fetchGoldPrice(this)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Live
+      </button>
+    </div>
   </div>
+</aside>
 
-  <div class="slider-wrap">
-    <label>Goldsteigerung/Jahr</label>
-    <input type="range" id="sliderProjection" min="0" max="15" step="0.5" value="2" oninput="onProjection(this.value)">
-    <span class="slider-val" id="valProjection">2,0 %</span>
+<!-- ═══ MAIN AREA ═══ -->
+<div class="main-area">
+
+<header class="top-bar no-print">
+  <div>
+    <div class="tb-label">Goldpreissteigerung / Jahr</div>
+    <div class="tb-row">
+      <input type="range" id="sliderProjection" min="0" max="15" step="0.5" value="2" oninput="onProjection(this.value)">
+      <span class="slider-val" id="valProjection">2,0 %</span>
+    </div>
   </div>
-
-  <div class="slider-wrap">
-    <label>Anzahl Zyklen (à 36 Mo.)</label>
-    <input type="range" id="sliderCycles" min="1" max="5" step="1" value="1" oninput="onCycles(this.value)">
-    <span class="slider-val" id="valCycles">1</span>
+  <div class="tb-divider"></div>
+  <div>
+    <div class="tb-label">Laufzeit (Zyklen à 36 Monate)</div>
+    <div class="tb-row">
+      <input type="range" id="sliderCycles" min="1" max="5" step="1" value="1" oninput="onCycles(this.value)">
+      <span class="slider-val" id="valCycles">1</span>
+    </div>
   </div>
 </header>
 
-<nav class="tabs">
-  <button class="tab-btn active" data-tab="investments" onclick="switchTab(this)">💰 Investitionen</button>
-  <button class="tab-btn" data-tab="affiliates" onclick="switchTab(this)">👥 Affiliates</button>
-  <button class="tab-btn" data-tab="dashboard" onclick="switchTab(this)">📊 Dashboard</button>
-  <button class="tab-btn" data-tab="timeline" onclick="switchTab(this)">📅 Zeitverlauf</button>
-  <button class="tab-btn" data-tab="goal" onclick="switchTab(this)">🎯 Zielrechner</button>
-</nav>
-
-<!-- TAB: INVESTITIONEN -->
+<!-- ═══ TAB: INVESTITIONEN ═══ -->
 <div id="tab-investments" class="tab-content active">
 <div class="page">
 
   <div class="card">
-    <div class="card-title">⬡ Einmalinvestition hinzufügen</div>
+    <div class="card-title"><span class="card-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+      Einmalinvestition hinzufügen
+    </span></div>
     <div class="form-row">
       <div class="form-group"><label>Betrag (EUR)</label><input type="number" id="oneAmt" placeholder="10 000" min="1" step="100"></div>
       <div class="form-group"><label>Startmonat</label><select id="oneMo"></select></div>
-      <button class="btn btn-gold" onclick="addOneTime()">+ Hinzufügen</button>
+      <button class="btn btn-gold" onclick="addOneTime()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Hinzufügen
+      </button>
     </div>
-    <div class="pos-meta" style="margin-top:8px">Laufzeit: 36 Monate. Payout: 2 %/Monat auf Kaufpreis + 30 % Treuebonus + Goldlieferung.</div>
+    <div class="pos-meta" style="margin-top:8px">Laufzeit 36 Monate · 2 %/Monat auf Kaufpreis · 30 % Treuebonus · Goldlieferung nach Zyklus</div>
   </div>
 
   <div class="card">
-    <div class="card-title">📅 Monatlicher Sparplan</div>
+    <div class="card-title"><span class="card-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h8M12 14v4"/></svg>
+      Monatlicher Sparplan
+    </span></div>
     <div class="form-row">
       <div class="form-group"><label>Betrag/Monat (EUR)</label><input type="number" id="planAmt" placeholder="500" min="1" step="50"></div>
       <div class="form-group"><label>Ab Monat</label><select id="planStart"></select></div>
@@ -192,7 +388,10 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.4)}
   </div>
 
   <div class="card">
-    <div class="card-title">⚙️ Optionen</div>
+    <div class="card-title"><span class="card-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2.5" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2.5" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2.5" fill="currentColor" stroke="none"/></svg>
+      Optionen &amp; Reinvestition
+    </span></div>
     <div style="display:flex;flex-direction:column;gap:14px">
       <div class="row-flex">
         <label class="toggle"><input type="checkbox" id="reinvestToggle" onchange="S.reinvest=this.checked;render()"><span class="tog-sl"></span></label>
@@ -212,75 +411,93 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.4)}
   </div>
 
   <div class="card">
-    <div class="card-title">💸 Einmalige Entnahme</div>
+    <div class="card-title"><span class="card-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      Einmalige Entnahme
+    </span></div>
     <div class="form-row">
       <div class="form-group"><label>Monat</label><select id="wdMo"></select></div>
       <div class="form-group"><label>Betrag (EUR)</label><input type="number" id="wdAmt" placeholder="1 000" min="1"></div>
       <div class="form-group"><label>Notiz</label><input type="text" id="wdNote" placeholder="z. B. Urlaub" style="width:130px"></div>
-      <button class="btn btn-outline" onclick="addWithdrawal()">+ Entnahme</button>
+      <button class="btn btn-outline" onclick="addWithdrawal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Entnahme
+      </button>
     </div>
     <div id="wdList" style="margin-top:10px"></div>
   </div>
 
   <div class="card">
-    <div class="card-title">📋 Meine Positionen</div>
+    <div class="card-title"><span class="card-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6" stroke-width="2.5"/><line x1="3" y1="12" x2="3.01" y2="12" stroke-width="2.5"/><line x1="3" y1="18" x2="3.01" y2="18" stroke-width="2.5"/></svg>
+      Meine Positionen
+    </span></div>
     <div id="posList"><div class="empty">Noch keine Positionen vorhanden.</div></div>
   </div>
 
-</div>
-</div>
+</div></div>
 
-<!-- TAB: AFFILIATES -->
+<!-- ═══ TAB: AFFILIATES ═══ -->
 <div id="tab-affiliates" class="tab-content">
 <div class="page">
   <div class="card">
-    <div class="card-title">👤 Neuen Affiliate-Klienten anlegen</div>
+    <div class="card-title"><span class="card-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Neuen Affiliate-Klienten anlegen
+    </span></div>
     <div class="form-row">
       <div class="form-group"><label>Name</label><input type="text" id="affName" placeholder="Max Mustermann" style="width:220px"></div>
-      <button class="btn btn-gold" onclick="addAffiliate()">+ Klient anlegen</button>
+      <button class="btn btn-gold" onclick="addAffiliate()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Klient anlegen
+      </button>
     </div>
     <div class="pos-meta" style="margin-top:8px">Du erhältst 1 %/Monat des Klienten-Kaufpreises für 36 Monate je Investitionsposition.</div>
   </div>
   <div id="affList"><div class="empty">Noch keine Klienten vorhanden.</div></div>
-</div>
-</div>
+</div></div>
 
-<!-- TAB: DASHBOARD -->
+<!-- ═══ TAB: DASHBOARD ═══ -->
 <div id="tab-dashboard" class="tab-content">
 <div class="page">
   <div class="pdf-btn-wrap">
-    <button class="btn btn-outline" onclick="downloadPDF()">📄 PDF Zusammenfassung herunterladen</button>
+    <button class="btn btn-outline" onclick="downloadPDF()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      PDF Zusammenfassung
+    </button>
   </div>
   <div class="kpi-section-label">Eigene Investitionen</div>
   <div class="kpi-grid" id="kpiGrid"></div>
   <div class="kpi-section-label">Affiliate-Erträge</div>
   <div class="aff-kpi-grid" id="affKpiGrid"></div>
   <div class="chart-grid">
-    <div class="chart-card"><div class="chart-title">Gesamtvermögen über Zeit · <span style="color:rgba(255,215,0,.7);font-size:11px">│ = Bonus + Goldlieferung</span></div><canvas id="cTotal"></canvas></div>
-    <div class="chart-card"><div class="chart-title">Monatliche Einnahmen · <span style="color:rgba(255,215,0,.7);font-size:11px">│ = Bonusmonat</span></div><canvas id="cMonthly"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Gesamtvermögen über Zeit &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonus + Lieferung</span></div><canvas id="cTotal"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Monatliche Einnahmen &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonusmonat</span></div><canvas id="cMonthly"></canvas></div>
     <div class="chart-card"><div class="chart-title">Goldakkumulation</div><canvas id="cGold"></canvas></div>
     <div class="chart-card"><div class="chart-title">Einnahmen-Aufschlüsselung (gesamt)</div><canvas id="cBreak"></canvas></div>
   </div>
-</div>
-</div>
+</div></div>
 
-<!-- TAB: ZEITVERLAUF -->
+<!-- ═══ TAB: ZEITVERLAUF ═══ -->
 <div id="tab-timeline" class="tab-content">
 <div class="page">
   <div class="card">
-    <div class="card-title">📅 Monatlicher Zeitverlauf</div>
+    <div class="card-title"><span class="card-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Monatlicher Zeitverlauf
+    </span></div>
     <div class="tbl-wrap"><table><thead id="tlHead"></thead><tbody id="tlBody"></tbody></table></div>
   </div>
-</div>
-</div>
+</div></div>
 
-<!-- TAB: ZIELRECHNER -->
+<!-- ═══ TAB: ZIELRECHNER ═══ -->
 <div id="tab-goal" class="tab-content">
 <div class="page">
-
   <div class="card">
-    <div class="card-title">🎯 Zielbetrag & Kombinations-Rechner</div>
-
+    <div class="card-title"><span class="card-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      Zielbetrag &amp; Kombinations-Rechner
+    </span></div>
     <div class="form-row" style="margin-bottom:16px">
       <div class="form-group"><label>Zielbetrag (EUR)</label><input type="number" id="goalAmt" placeholder="100 000" min="1" step="1000" style="width:180px"></div>
       <div class="form-group"><label>Zielgröße</label>
@@ -299,7 +516,6 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.4)}
         </select>
       </div>
     </div>
-
     <div class="divider"></div>
     <div class="sect">Eigene Beiträge konfigurieren</div>
     <div class="form-row" style="margin-bottom:10px">
@@ -333,23 +549,37 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.4)}
         <label class="toggle"><input type="checkbox" id="g_reinvest"><span class="tog-sl"></span></label>
         <span style="font-size:13px">Mit Reinvestition</span>
       </div>
-      <button class="btn btn-gold" onclick="runGoal()">Berechnen</button>
+      <button class="btn btn-gold" onclick="runGoal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Berechnen
+      </button>
     </div>
   </div>
-
   <div id="goalResults"></div>
+</div></div>
 
-</div>
-</div>
+</div><!-- /main-area -->
+</div><!-- /app -->
 
 <script>
 'use strict';
 
+// ─── ICONS (inline SVG für JS-generierte HTML-Strings) ─────────
+const IC = {
+  gold:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>`,
+  plan:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  person:   `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  bonus:    `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  down:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>`,
+  close:    `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  target:   `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+};
+
 // ─── STATE ──────────────────────────────────────────────────
 const S = {
   goldPerGram: 92.50,
-  projection: 2,        // % p.a. – default 2% (user's ROI expectation baseline)
-  cycles: 1,            // display cycles (1 cycle = 36 months)
+  projection: 2,
+  cycles: 1,
   investments: [],
   plan: { active:false, amount:0, start:0, duration:-1 },
   affiliates: [],
@@ -364,7 +594,7 @@ const uid = () => S._id++;
 const EUR = n => new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n||0);
 const GR  = n => (+n||0).toFixed(3)+' g';
 
-const ORIGIN = new Date(2026, 4, 1); // May 2026 = month 0
+const ORIGIN = new Date(2026, 4, 1);
 function monthLabel(off) {
   const d = new Date(ORIGIN.getFullYear(), ORIGIN.getMonth()+off, 1);
   return d.toLocaleDateString('de-DE',{month:'short',year:'numeric'});
@@ -379,25 +609,23 @@ function gpAt(month, gp, proj) {
 
 // ─── CALCULATION ENGINE ─────────────────────────────────────
 function calculate(opts = {}) {
-  const investments  = opts.investments  ?? S.investments;
-  const plan         = opts.plan         ?? S.plan;
-  const affiliates   = opts.affiliates   ?? S.affiliates;
-  const withdrawals  = opts.withdrawals  ?? S.withdrawals;
-  const reinvest     = opts.reinvest     ?? S.reinvest;
+  const investments   = opts.investments  ?? S.investments;
+  const plan          = opts.plan         ?? S.plan;
+  const affiliates    = opts.affiliates   ?? S.affiliates;
+  const withdrawals   = opts.withdrawals  ?? S.withdrawals;
+  const reinvest      = opts.reinvest     ?? S.reinvest;
   const cycleReinvest = opts.cycleReinvest ?? S.cycleReinvest;
-  const cycles       = opts.cycles       ?? S.cycles;
-  const proj         = opts.projection   ?? S.projection;
-  const gp0          = opts.goldPerGram  ?? S.goldPerGram;
+  const cycles        = opts.cycles       ?? S.cycles;
+  const proj          = opts.projection   ?? S.projection;
+  const gp0           = opts.goldPerGram  ?? S.goldPerGram;
   const gp = m => gpAt(m, gp0, proj);
 
-  const N = cycles * 36 + 37; // enough tail for last cycle deliveries
+  const N = cycles * 36 + 37;
 
-  // Build positions from manual investments
   const positions = investments.map(inv => ({
     ...inv, grams: inv.principalEUR / gp(inv.startMonth)
   }));
 
-  // Monthly plan positions
   if (plan.active && plan.amount > 0) {
     const maxM = plan.duration >= 0 ? plan.start + plan.duration : N;
     for (let m = plan.start; m < maxM && m < N; m++) {
@@ -407,13 +635,10 @@ function calculate(opts = {}) {
   }
 
   const results = [];
-  let cumReceived   = 0;
-  let cumWithdrawn  = 0;
-  let cumReinvested = 0;
-  let cumGoldGrams  = 0;
+  let cumReceived = 0, cumWithdrawn = 0, cumReinvested = 0, cumGoldGrams = 0;
 
   for (let mo = 0; mo < N; mo++) {
-    let pay2  = 0, pay30 = 0, affInc = 0;
+    let pay2 = 0, pay30 = 0, affInc = 0;
     let delivGrams = 0, delivValue = 0;
 
     for (const pos of positions) {
@@ -430,15 +655,12 @@ function calculate(opts = {}) {
     }
 
     for (const aff of affiliates) {
-      // One-time investments
       for (const ai of aff.investments) {
         const d = mo - ai.startMonth;
         if (d >= 0 && d < 36) affInc += ai.principalEUR * 0.01;
       }
-      // Monthly plan: each monthly purchase starts own 36-month affiliate cycle
       if (aff.plan?.active && aff.plan.amount > 0) {
-        const planEnd = aff.plan.duration >= 0
-          ? aff.plan.start + aff.plan.duration : N;
+        const planEnd = aff.plan.duration >= 0 ? aff.plan.start + aff.plan.duration : N;
         for (let pm = aff.plan.start; pm <= mo && pm < planEnd; pm++) {
           const delta = mo - pm;
           if (delta < 36) affInc += aff.plan.amount * 0.01;
@@ -449,13 +671,11 @@ function calculate(opts = {}) {
     const totalIncome = pay2 + pay30 + affInc;
     cumReceived += totalIncome;
 
-    // Withdrawal
     const wEntry  = withdrawals.find(w => w.month === mo);
     const liquid0 = cumReceived - cumWithdrawn - cumReinvested;
     const wdAmt   = wEntry ? Math.min(wEntry.amount, Math.max(0, liquid0)) : 0;
     cumWithdrawn += wdAmt;
 
-    // Per-payout reinvestment
     let riAmt = 0;
     if (reinvest) {
       riAmt = Math.max(0, totalIncome - wdAmt);
@@ -468,7 +688,6 @@ function calculate(opts = {}) {
 
     const liquidBal = cumReceived - cumWithdrawn - cumReinvested;
 
-    // Active gold value (positions still in 36-month window)
     let activeGoldVal = 0;
     for (const pos of positions) {
       const d = mo - pos.startMonth;
@@ -478,7 +697,6 @@ function calculate(opts = {}) {
     const deliveredVal = cumGoldGrams * gp(mo);
     const totalWealth  = liquidBal + deliveredVal + activeGoldVal;
 
-    // Cycle-level reinvestment at end of each cycle (month 35, 71, 107…)
     let cycleRiAmt = 0;
     if (cycleReinvest && (mo + 1) % 36 === 0 && liquidBal > 0) {
       cycleRiAmt = liquidBal;
@@ -494,19 +712,12 @@ function calculate(opts = {}) {
       cumReceived, cumWithdrawn, cumReinvested, cumGoldGrams,
       liquidBal, activeGoldVal, deliveredVal, totalWealth });
   }
-
   return results;
 }
 
-// ─── FIXED CASH ROI (always 102% regardless of gold price) ─
-function cashROI() {
-  // Per cycle: 36 × 2% + 30% = 102% of principal returned in cash
-  return 102.0;
-}
-
-// ─── GOLD PRICE FETCH ────────────────────────────────────────
+// ─── GOLD PRICE ──────────────────────────────────────────────
 async function fetchGoldPrice(btn) {
-  if (btn) { btn.textContent='⏳'; btn.disabled=true; }
+  if (btn) { btn.textContent='…'; btn.disabled=true; }
   try {
     const r   = await fetch('https://api.metals.live/v1/spot/gold');
     const arr = await r.json();
@@ -523,19 +734,23 @@ async function fetchGoldPrice(btn) {
       const r2  = await fetch('https://api.frankfurter.app/latest?from=XAU&to=EUR');
       const d2  = await r2.json();
       const eur = Math.round((d2.rates.EUR/31.1035)*100)/100;
-      S.goldPerGram = eur; document.getElementById('goldPriceInput').value = eur.toFixed(2);
+      S.goldPerGram = eur;
+      document.getElementById('goldPriceInput').value = eur.toFixed(2);
       updateGoldDisplay(); render();
     } catch(e2) { alert('Live-Preis nicht verfügbar. Bitte manuell eingeben.'); }
   }
-  if (btn) { btn.textContent='↻ Live'; btn.disabled=false; }
+  if (btn) {
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Live`;
+    btn.disabled = false;
+  }
 }
 
 function onGoldPrice(v){ S.goldPerGram=parseFloat(v)||92.5; updateGoldDisplay(); render(); }
 function onProjection(v){ S.projection=parseFloat(v); document.getElementById('valProjection').textContent=parseFloat(v).toFixed(1)+' %'; render(); }
 function onCycles(v){ S.cycles=parseInt(v); document.getElementById('valCycles').textContent=v; populateSelects(); render(); }
-function updateGoldDisplay(){ document.getElementById('goldPriceDisplay').textContent=EUR(S.goldPerGram)+'/g'; }
+function updateGoldDisplay(){ document.getElementById('goldPriceDisplay').textContent=EUR(S.goldPerGram).replace(' €',''); }
 
-// ─── POPULATE SELECTS ────────────────────────────────────────
+// ─── SELECTS ────────────────────────────────────────────────
 function populateSelects() {
   const totalMo = S.cycles * 36;
   ['oneMo','planStart','wdMo'].forEach(id => {
@@ -569,7 +784,7 @@ function setPlan() {
   S.plan={ active:true, amount:amt, start:st, duration:dur };
   const el=document.getElementById('planStatus');
   el.style.display='block'; el.className='info';
-  el.innerHTML=`✓ Sparplan aktiv: <strong>${EUR(amt)}/Monat</strong> ab ${monthLabel(st)}${dur>=0?' für '+dur+' Monate':' (unbegrenzt)'}`;
+  el.innerHTML=`Sparplan aktiv: <strong>${EUR(amt)}/Monat</strong> ab ${monthLabel(st)}${dur>=0?' für '+dur+' Monate':' (unbegrenzt)'}`;
   render();
 }
 function clearPlan(){ S.plan={active:false,amount:0,start:0,duration:-1}; document.getElementById('planStatus').style.display='none'; render(); }
@@ -594,9 +809,9 @@ function addAffiliate() {
 }
 
 function setAffPlan(affId) {
-  const amt  = parseFloat(document.getElementById(`ap_amt_${affId}`).value);
-  const st   = parseInt(document.getElementById(`ap_st_${affId}`).value)||0;
-  const dur  = parseInt(document.getElementById(`ap_dur_${affId}`).value);
+  const amt = parseFloat(document.getElementById(`ap_amt_${affId}`).value);
+  const st  = parseInt(document.getElementById(`ap_st_${affId}`).value)||0;
+  const dur = parseInt(document.getElementById(`ap_dur_${affId}`).value);
   if (!amt||amt<=0){ alert('Bitte gültigen Betrag eingeben.'); return; }
   const aff=S.affiliates.find(a=>a.id===affId);
   if (!aff) return;
@@ -630,18 +845,18 @@ function renderPositions() {
   let html='';
   if (S.plan.active) {
     html+=`<div class="pos-item">
-      <div class="pos-main"><span class="tag tag-monthly">📅 Sparplan</span>
+      <div class="pos-main"><span class="tag tag-monthly">${IC.plan} Sparplan</span>
         <strong>${EUR(S.plan.amount)}/Monat</strong>
         <span class="pos-meta">ab ${monthLabel(S.plan.start)}${S.plan.duration>=0?' für '+S.plan.duration+' Monate':' (unbegrenzt)'}</span>
-        <span class="pos-meta">≈ ${GR(S.plan.amount/gpAt(S.plan.start))}/Rate • Payout: ${EUR(S.plan.amount*0.02)}/Mo.</span>
+        <span class="pos-meta">≈ ${GR(S.plan.amount/gpAt(S.plan.start))}/Rate · Payout: ${EUR(S.plan.amount*0.02)}/Mo.</span>
       </div>
-      <div class="pos-right"><button class="btn btn-red btn-sm" onclick="clearPlan()">✕</button></div>
+      <div class="pos-right"><button class="btn btn-red btn-sm" onclick="clearPlan()">${IC.close}</button></div>
     </div>`;
   }
   for (const inv of S.investments) {
     const g=inv.principalEUR/gpAt(inv.startMonth);
     html+=`<div class="pos-item">
-      <div class="pos-main"><span class="tag tag-own">⬡ Einmalinvestition</span>
+      <div class="pos-main"><span class="tag tag-own">${IC.gold} Einmalinvestition</span>
         <strong>${EUR(inv.principalEUR)}</strong>
         <span class="pos-meta">${GR(g)}</span>
         <span class="pos-meta">Start: ${monthLabel(inv.startMonth)}</span>
@@ -652,7 +867,7 @@ function renderPositions() {
           <div class="c-gold" style="font-size:12px">${EUR(inv.principalEUR*0.02)}/Mo.</div>
           <div class="pos-meta">+${EUR(inv.principalEUR*0.30)} Bonus</div>
         </div>
-        <button class="btn btn-red btn-sm" onclick="removeInvestment(${inv.id})">✕</button>
+        <button class="btn btn-red btn-sm" onclick="removeInvestment(${inv.id})">${IC.close}</button>
       </div>
     </div>`;
   }
@@ -666,12 +881,12 @@ function renderWithdrawals() {
   for (const w of S.withdrawals)
     html+=`<div class="pos-item">
       <div class="pos-main">
-        <span class="tag" style="background:rgba(231,76,60,.15);color:var(--red)">💸</span>
+        <span class="tag" style="background:rgba(224,82,82,.1);color:var(--red);border:1px solid rgba(224,82,82,.2)">${IC.down}</span>
         <strong>${monthLabel(w.month)}</strong>
         <span class="c-red">${EUR(w.amount)}</span>
-        ${w.note?`<span class="pos-meta">${w.note}`:''}
+        ${w.note?`<span class="pos-meta">${w.note}</span>`:''}
       </div>
-      <button class="btn btn-red btn-sm" onclick="removeWithdrawal(${w.id})">✕</button>
+      <button class="btn btn-red btn-sm" onclick="removeWithdrawal(${w.id})">${IC.close}</button>
     </div>`;
   c.innerHTML=html;
 }
@@ -681,12 +896,12 @@ function renderAffiliates() {
   if (!S.affiliates.length){ c.innerHTML='<div class="empty">Noch keine Klienten vorhanden.</div>'; return; }
   let html='';
   for (const aff of S.affiliates) {
-    const totalCap    = aff.investments.reduce((s,i)=>s+i.principalEUR,0);
-    const moIncOne    = aff.investments.reduce((s,i)=>s+i.principalEUR*0.01,0);
-    const moIncPlan   = (aff.plan?.active && aff.plan.amount>0) ? aff.plan.amount*0.01 : 0;
+    const totalCap  = aff.investments.reduce((s,i)=>s+i.principalEUR,0);
+    const moIncOne  = aff.investments.reduce((s,i)=>s+i.principalEUR*0.01,0);
+    const moIncPlan = (aff.plan?.active && aff.plan.amount>0) ? aff.plan.amount*0.01 : 0;
     let moOpts='';
     for (let m=0;m<=S.cycles*36;m++) moOpts+=`<option value="${m}">${monthLabel(m)}</option>`;
-    let durOpts=`<option value="-1">Unbegrenzt</option><option value="6">6 Mo.</option>
+    const durOpts=`<option value="-1">Unbegrenzt</option><option value="6">6 Mo.</option>
       <option value="12">12 Mo.</option><option value="24">24 Mo.</option>
       <option value="36">36 Mo. (1 Zyklus)</option>`;
     let invRows='';
@@ -697,21 +912,21 @@ function renderAffiliates() {
           <span class="pos-meta">ab ${monthLabel(ai.startMonth)}</span>
           <span class="c-blue" style="font-size:12px">→ ${EUR(ai.principalEUR*0.01)}/Mo. für dich</span>
         </div>
-        <button class="btn btn-red btn-sm" onclick="removeAffInv(${aff.id},${ai.id})">✕</button>
+        <button class="btn btn-red btn-sm" onclick="removeAffInv(${aff.id},${ai.id})">${IC.close}</button>
       </div>`;
 
     const planStatus = aff.plan?.active
-      ? `<div class="pos-item" style="margin-bottom:6px;background:rgba(52,152,219,.08);border-color:rgba(52,152,219,.3)">
-          <div class="pos-main"><span class="tag tag-aff">📅 Sparplan</span>
+      ? `<div class="pos-item" style="margin-bottom:6px;background:rgba(91,156,246,.06);border-color:rgba(91,156,246,.22)">
+          <div class="pos-main"><span class="tag tag-aff">${IC.plan} Sparplan</span>
             <strong>${EUR(aff.plan.amount)}/Monat</strong>
             <span class="pos-meta">ab ${monthLabel(aff.plan.start)}${aff.plan.duration>=0?' für '+aff.plan.duration+' Mo.':' (unbegrenzt)'}</span>
             <span class="c-blue" style="font-size:12px">→ ${EUR(aff.plan.amount*0.01)}/Mo. pro aktiver Rate</span>
           </div>
-          <button class="btn btn-red btn-sm" onclick="clearAffPlan(${aff.id})">✕</button>
+          <button class="btn btn-red btn-sm" onclick="clearAffPlan(${aff.id})">${IC.close}</button>
         </div>` : '';
 
     html+=`<div class="card">
-      <div class="card-title">👤 ${aff.name}
+      <div class="card-title"><span class="card-icon">${IC.person} ${aff.name}</span>
         <button class="btn btn-red btn-sm" onclick="removeAffiliate(${aff.id})">Entfernen</button>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
@@ -757,7 +972,6 @@ function renderDashboard(data) {
   const totalROI  = ownCap>0 ? ((last.totalWealth/ownCap-1)*100).toFixed(1)+' %' : '—';
   const cashROIVal= ownCap>0 ? ((last.cumReceived/ownCap)*100).toFixed(1)+' %' : '—';
 
-  // ── own KPIs ──
   document.getElementById('kpiGrid').innerHTML=`
     <div class="kpi"><div class="kpi-label">Eigenes Kapital investiert</div><div class="kpi-value c-gold">${EUR(ownCap)}</div></div>
     <div class="kpi"><div class="kpi-label">Cash-ROI (Auszahlungen)</div><div class="kpi-value c-gold">${cashROIVal}</div>
@@ -771,10 +985,8 @@ function renderDashboard(data) {
     <div class="kpi"><div class="kpi-label">Gesamtvermögen</div><div class="kpi-value c-green">${EUR(last.totalWealth)}</div></div>
   `;
 
-  // ── affiliate KPIs ──
   const affCount    = S.affiliates.length;
-  const affTotalCap = S.affiliates.reduce((s,a)=>
-    s + a.investments.reduce((ss,i)=>ss+i.principalEUR,0), 0);
+  const affTotalCap = S.affiliates.reduce((s,a)=>s+a.investments.reduce((ss,i)=>ss+i.principalEUR,0),0);
   const disp = data.slice(0, totalMo+1);
   const cumAff  = disp.reduce((s,d)=>s+d.affInc, 0);
   const moAff   = last.affInc;
@@ -782,7 +994,7 @@ function renderDashboard(data) {
   document.getElementById('affKpiGrid').innerHTML = affCount===0
     ? `<div class="kpi" style="grid-column:1/-1"><div class="kpi-label">Affiliates</div><div class="kpi-value c-muted">—</div><div class="kpi-sub">Noch keine Klienten erfasst</div></div>`
     : `<div class="kpi"><div class="kpi-label">Anzahl Klienten</div><div class="kpi-value c-blue">${affCount}</div></div>
-       <div class="kpi"><div class="kpi-label">Klienten-Gesamtkapital</div><div class="kpi-value c-blue">${EUR(affTotalCap)}</div><div class="kpi-sub">Einmalinvestionen</div></div>
+       <div class="kpi"><div class="kpi-label">Klienten-Gesamtkapital</div><div class="kpi-value c-blue">${EUR(affTotalCap)}</div><div class="kpi-sub">Einmalinvestitionen</div></div>
        ${affPlanAmt>0?`<div class="kpi"><div class="kpi-label">Sparplan-Volumen/Mo.</div><div class="kpi-value c-blue">${EUR(affPlanAmt)}</div><div class="kpi-sub">alle Klienten gesamt</div></div>`:''}
        <div class="kpi"><div class="kpi-label">Affiliate-Einnahmen/Monat</div><div class="kpi-value c-green">${EUR(moAff)}</div><div class="kpi-sub">aktuell (Monat ${totalMo})</div></div>
        <div class="kpi"><div class="kpi-label">Affiliate-Einnahmen kum.</div><div class="kpi-value c-green">${EUR(cumAff)}</div><div class="kpi-sub">gesamt über ${S.cycles} Zyklus/en</div></div>
@@ -804,18 +1016,17 @@ function updateCharts(data, totalMo) {
   const disp   = data.slice(0, totalMo+1);
   const labels = disp.map(d=>d.label);
 
-  // Bonus-month annotations (vertical gold dashed lines)
   const bonusAnnotations = {};
   disp.forEach((d, i) => {
     if (d.pay30 > 0 || d.delivGrams > 0) {
       bonusAnnotations[`bm${i}`] = {
         type: 'line', scaleID: 'x', value: labels[i],
-        borderColor: 'rgba(255,215,0,0.55)', borderWidth: 1.5,
+        borderColor: 'rgba(240,192,64,0.5)', borderWidth: 1.5,
         borderDash: [5,4],
         label: {
-          content: '⬡ Bonus', display: true,
-          backgroundColor: 'rgba(255,215,0,0.12)',
-          color: '#FFD700', font: { size: 9, weight: 'bold' },
+          content: 'Bonus', display: true,
+          backgroundColor: 'rgba(240,192,64,0.1)',
+          color: '#F0C040', font: { size: 9, weight: 'bold' },
           position: 'start', yAdjust: 6
         }
       };
@@ -825,37 +1036,37 @@ function updateCharts(data, totalMo) {
   const baseOpts = {
     responsive:true, maintainAspectRatio:true,
     plugins:{
-      legend:{ labels:{ color:'#8A8A9A', font:{size:11}, boxWidth:12 }},
+      legend:{ labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }},
       tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}},
       annotation:{ annotations: bonusAnnotations }
     },
     scales:{
-      x:{ ticks:{ color:'#8A8A9A', maxRotation:45, font:{size:9}}, grid:{ color:'rgba(255,255,255,.04)'}},
-      y:{ ticks:{ color:'#8A8A9A', callback:v=>EUR(v), font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}}
+      x:{ ticks:{ color:'#7C7670', maxRotation:45, font:{size:9}}, grid:{ color:'rgba(255,255,255,.04)'}},
+      y:{ ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}}
     }
   };
 
   mkChart('cTotal','line',{ labels, datasets:[
-    { label:'Gesamtvermögen', data:disp.map(d=>d.totalWealth), borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,.1)', fill:true, tension:.35, pointRadius:0 },
-    { label:'Liquides Kapital', data:disp.map(d=>d.liquidBal), borderColor:'#2ECC71', backgroundColor:'rgba(46,204,113,.07)', fill:true, tension:.35, pointRadius:0 },
-    { label:'Goldwert geliefert', data:disp.map(d=>d.deliveredVal), borderColor:'#FFD700', tension:.35, pointRadius:0 }
+    { label:'Gesamtvermögen', data:disp.map(d=>d.totalWealth), borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,.09)', fill:true, tension:.35, pointRadius:0 },
+    { label:'Liquides Kapital', data:disp.map(d=>d.liquidBal), borderColor:'#3DB870', backgroundColor:'rgba(61,184,112,.07)', fill:true, tension:.35, pointRadius:0 },
+    { label:'Goldwert geliefert', data:disp.map(d=>d.deliveredVal), borderColor:'#F0C040', tension:.35, pointRadius:0 }
   ]}, baseOpts);
 
   mkChart('cMonthly','bar',{ labels, datasets:[
-    { label:'2 % Payouts',    data:disp.map(d=>d.pay2),   backgroundColor:'#C8A951', stack:'s' },
-    { label:'30 % Bonus',     data:disp.map(d=>d.pay30),  backgroundColor:'#FFD700', stack:'s' },
-    { label:'Affiliate 1 %',  data:disp.map(d=>d.affInc), backgroundColor:'#3498DB', stack:'s' }
+    { label:'2 % Payouts',   data:disp.map(d=>d.pay2),   backgroundColor:'#C8A951', stack:'s' },
+    { label:'30 % Bonus',    data:disp.map(d=>d.pay30),  backgroundColor:'#F0C040', stack:'s' },
+    { label:'Affiliate 1 %', data:disp.map(d=>d.affInc), backgroundColor:'#5B9CF6', stack:'s' }
   ]}, baseOpts);
 
   const goldOpts={...baseOpts, scales:{
-    x:{ ticks:{ color:'#8A8A9A', maxRotation:45, font:{size:9}}, grid:{ color:'rgba(255,255,255,.04)'}},
-    y:{ position:'left', ticks:{ color:'#8A8A9A', callback:v=>v.toFixed(1)+' g', font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
-    y2:{ position:'right', ticks:{ color:'#8A8A9A', callback:v=>EUR(v), font:{size:10}}, grid:{ drawOnChartArea:false }}
+    x:{ ticks:{ color:'#7C7670', maxRotation:45, font:{size:9}}, grid:{ color:'rgba(255,255,255,.04)'}},
+    y:{ position:'left', ticks:{ color:'#7C7670', callback:v=>v.toFixed(1)+' g', font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
+    y2:{ position:'right', ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ drawOnChartArea:false }}
   }, plugins:{...baseOpts.plugins, tooltip:{ callbacks:{ label:ctx=>ctx.dataset.yAxisID==='y2'?` ${EUR(ctx.parsed.y)}`:` ${ctx.parsed.y.toFixed(3)} g`}}}};
 
   mkChart('cGold','line',{ labels, datasets:[
     { label:'Gold kumuliert (g)', data:disp.map(d=>d.cumGoldGrams), borderColor:'#C8A951', tension:.35, pointRadius:0, yAxisID:'y' },
-    { label:'Goldwert (€)', data:disp.map(d=>d.deliveredVal), borderColor:'#FFD700', tension:.35, pointRadius:0, yAxisID:'y2', borderDash:[4,2] }
+    { label:'Goldwert (€)', data:disp.map(d=>d.deliveredVal), borderColor:'#F0C040', tension:.35, pointRadius:0, yAxisID:'y2', borderDash:[4,2] }
   ]}, goldOpts);
 
   const tot2=disp.reduce((s,d)=>s+d.pay2,0);
@@ -864,14 +1075,13 @@ function updateCharts(data, totalMo) {
   const totRe=disp[disp.length-1]?.cumReinvested||0;
   mkChart('cBreak','doughnut',{
     labels:['2 % Monatspayouts','30 % Treueboni','Affiliate 1 %','Reinvestiert'],
-    datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#FFD700','#3498DB','#2ECC71'], borderWidth:0 }]
-  },{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{ color:'#8A8A9A', font:{size:11}, boxWidth:12 }}, tooltip:{ callbacks:{ label:ctx=>` ${EUR(ctx.parsed)}`}}}});
+    datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#F0C040','#5B9CF6','#3DB870'], borderWidth:0 }]
+  },{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }}, tooltip:{ callbacks:{ label:ctx=>` ${EUR(ctx.parsed)}`}}}});
 }
 
 // ─── RENDER: TIMELINE ────────────────────────────────────────
 function renderTimeline(data) {
   const totalMo=S.cycles*36;
-  // +1 so the final bonus/delivery month is visible in the table
   const disp=data.slice(0, totalMo+1);
   document.getElementById('tlHead').innerHTML=`<tr>
     <th>Monat</th><th>Zyklus</th><th>2 % Payout</th><th>30 % Bonus</th><th>Affiliate</th>
@@ -885,10 +1095,10 @@ function renderTimeline(data) {
     const hasBonus = d.pay30>0;
     const hasDel   = d.delivGrams>0;
     rows+=`<tr class="${hasBonus?'hl':''} ${isCycleStart?'cycle-start':''}">
-      <td>${d.label}${hasBonus?' <span class="tag tag-bonus">🎁 Bonus</span>':''}</td>
+      <td>${d.label}${hasBonus?` <span class="tag tag-bonus">${IC.bonus} Bonus</span>`:''}</td>
       <td><span class="cycle-badge">Z${zyklusNr}</span></td>
       <td class="c-gold">${d.pay2>0?EUR(d.pay2):'—'}</td>
-      <td class="c-gold">${d.pay30>0?EUR(d.pay30):'—'}</td>
+      <td class="c-gold2">${d.pay30>0?EUR(d.pay30):'—'}</td>
       <td class="c-blue">${d.affInc>0?EUR(d.affInc):'—'}</td>
       <td><strong>${d.totalIncome>0?EUR(d.totalIncome):'—'}</strong></td>
       <td class="c-red">${d.wdAmt>0?'−'+EUR(d.wdAmt):'—'}</td>
@@ -910,7 +1120,6 @@ function downloadPDF() {
   const disp   = data.slice(0, totalMo+1);
   const today  = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
 
-  // Capture chart images before opening print window
   const imgs = {};
   ['cTotal','cMonthly','cGold','cBreak'].forEach(id => {
     const c = document.getElementById(id);
@@ -924,13 +1133,11 @@ function downloadPDF() {
   const cumAff = disp.reduce((s,d)=>s+d.affInc,0);
   const totalROI = ownCap>0?((last.totalWealth/ownCap-1)*100).toFixed(1)+'%':'—';
 
-  // Build timeline rows (all months)
   let tlRows = '';
   disp.forEach(d => {
     const bonus = d.pay30>0;
     tlRows += `<tr style="${bonus?'background:#fffbe6;font-weight:600':''}">
-      <td>${d.label}</td>
-      <td>Z${Math.floor(d.month/36)+1}</td>
+      <td>${d.label}</td><td>Z${Math.floor(d.month/36)+1}</td>
       <td style="text-align:right">${d.pay2>0?EUR(d.pay2):'—'}</td>
       <td style="text-align:right;color:#B8860B">${d.pay30>0?EUR(d.pay30):'—'}</td>
       <td style="text-align:right;color:#1565C0">${d.affInc>0?EUR(d.affInc):'—'}</td>
@@ -943,27 +1150,24 @@ function downloadPDF() {
     </tr>`;
   });
 
-  // Affiliates summary
   let affRows = '';
   S.affiliates.forEach(aff => {
     const cap = aff.investments.reduce((s,i)=>s+i.principalEUR,0);
     const moInc = aff.investments.reduce((s,i)=>s+i.principalEUR*0.01,0);
-    affRows += `<tr>
-      <td>${aff.name}</td>
-      <td style="text-align:right">${EUR(cap)}</td>
+    affRows += `<tr><td>${aff.name}</td><td style="text-align:right">${EUR(cap)}</td>
       <td style="text-align:right">${EUR(moInc)}/Mo.</td>
       <td style="text-align:right">${aff.plan?.active?EUR(aff.plan.amount)+'/Mo.':'—'}</td>
-      <td style="text-align:right">${EUR(moInc*36)}</td>
-    </tr>`;
+      <td style="text-align:right">${EUR(moInc*36)}</td></tr>`;
   });
 
   const html = `<!DOCTYPE html><html lang="de"><head>
   <meta charset="UTF-8">
-  <title>GOLD Kalkulator – Szenario ${today}</title>
+  <title>callidus AURUM – Szenario ${today}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#1a1a1a;padding:24px}
-    h1{font-size:20px;color:#8B6914;margin-bottom:4px}
+    h1{font-size:22px;color:#8B6914;margin-bottom:2px;font-family:Georgia,serif}
+    .brand{font-size:11px;color:#aaa;font-style:italic;margin-bottom:4px}
     .sub{font-size:12px;color:#666;margin-bottom:20px}
     h2{font-size:14px;color:#8B6914;margin:20px 0 8px;padding-bottom:4px;border-bottom:2px solid #C8A951}
     .kpi-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
@@ -979,14 +1183,14 @@ function downloadPDF() {
     .charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
     .chart-box img{width:100%;border:1px solid #eee;border-radius:4px}
     .chart-lbl{font-size:10px;color:#888;margin-bottom:4px}
-    .settings-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:8px;font-size:12px}
+    .settings-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;font-size:12px}
     .settings-row span{background:#fafaf5;border:1px solid #E8D8A0;border-radius:4px;padding:3px 8px}
     .footer{margin-top:24px;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
     @media print{body{padding:12px}@page{margin:1.5cm}}
   </style></head><body>
-  <h1>⬡ GOLD Investment Kalkulator</h1>
+  <div class="brand">TGI · The Gold Investment</div>
+  <h1>callidus AURUM</h1>
   <div class="sub">Szenario-Zusammenfassung · Erstellt am ${today}</div>
-
   <div class="settings-row">
     <span>Goldpreis: <strong>${EUR(S.goldPerGram)}/g</strong></span>
     <span>Goldsteigerung: <strong>${S.projection} %/Jahr</strong></span>
@@ -994,8 +1198,7 @@ function downloadPDF() {
     <span>Reinvestition: <strong>${S.reinvest?'AN':'AUS'}</strong></span>
     <span>Zyklus-Reinvest: <strong>${S.cycleReinvest?'AN':'AUS'}</strong></span>
   </div>
-
-  <h2>Eigene Investitionen – Übersicht</h2>
+  <h2>Eigene Investitionen</h2>
   <div class="kpi-row">
     <div class="kpi"><div class="kpi-lbl">Eigenes Kapital</div><div class="kpi-val gold">${EUR(ownCap)}</div></div>
     <div class="kpi"><div class="kpi-lbl">Cash-ROI (garantiert)</div><div class="kpi-val gold">${ownCap>0?((last.cumReceived/ownCap)*100).toFixed(1)+'%':'—'}</div><div class="kpi-sub">36×2%+30%=102%</div></div>
@@ -1006,16 +1209,14 @@ function downloadPDF() {
     <div class="kpi"><div class="kpi-lbl">Aktives Gold (Händler)</div><div class="kpi-val blue">${EUR(last.activeGoldVal)}</div></div>
     <div class="kpi"><div class="kpi-lbl">Gesamtvermögen</div><div class="kpi-val green">${EUR(last.totalWealth)}</div></div>
   </div>
-
   <h2>Affiliate-Erträge</h2>
   <div class="kpi-row">
     <div class="kpi"><div class="kpi-lbl">Anzahl Klienten</div><div class="kpi-val blue">${S.affiliates.length}</div></div>
-    <div class="kpi"><div class="kpi-lbl">Klienten-Kapital (Einmal)</div><div class="kpi-val blue">${EUR(S.affiliates.reduce((s,a)=>s+a.investments.reduce((ss,i)=>ss+i.principalEUR,0),0))}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Klienten-Kapital</div><div class="kpi-val blue">${EUR(S.affiliates.reduce((s,a)=>s+a.investments.reduce((ss,i)=>ss+i.principalEUR,0),0))}</div></div>
     <div class="kpi"><div class="kpi-lbl">Aff.-Einnahmen kum.</div><div class="kpi-val green">${EUR(cumAff)}</div></div>
     <div class="kpi"><div class="kpi-lbl">Aff. / Monat (aktuell)</div><div class="kpi-val green">${EUR(last.affInc)}</div></div>
   </div>
   ${S.affiliates.length>0?`<table><thead><tr><th>Klient</th><th>Einmal-Kapital</th><th>1% Provision</th><th>Sparplan</th><th>Provision gesamt</th></tr></thead><tbody>${affRows}</tbody></table>`:''}
-
   <h2>Charts</h2>
   <div class="charts">
     ${imgs.cTotal?`<div class="chart-box"><div class="chart-lbl">Gesamtvermögen über Zeit</div><img src="${imgs.cTotal}"></div>`:''}
@@ -1023,18 +1224,13 @@ function downloadPDF() {
     ${imgs.cGold?`<div class="chart-box"><div class="chart-lbl">Goldakkumulation</div><img src="${imgs.cGold}"></div>`:''}
     ${imgs.cBreak?`<div class="chart-box"><div class="chart-lbl">Einnahmen-Aufschlüsselung</div><img src="${imgs.cBreak}"></div>`:''}
   </div>
-
   <h2>Monatlicher Zeitverlauf</h2>
-  <table>
-    <thead><tr>
-      <th>Monat</th><th>Zyklus</th><th>2% Payout</th><th>30% Bonus</th>
-      <th>Affiliate</th><th>Gesamt</th><th>Entnahme</th><th>Reinvest</th>
-      <th>Goldlieferung</th><th>Liquidität</th><th>Gesamtvermögen</th>
-    </tr></thead>
-    <tbody>${tlRows}</tbody>
-  </table>
-
-  <div class="footer">GOLD Investment Kalkulator · github.com/svenn8n-a11y/gold-investment-kalkulator · ${today}</div>
+  <table><thead><tr>
+    <th>Monat</th><th>Zyklus</th><th>2% Payout</th><th>30% Bonus</th>
+    <th>Affiliate</th><th>Gesamt</th><th>Entnahme</th><th>Reinvest</th>
+    <th>Goldlieferung</th><th>Liquidität</th><th>Gesamtvermögen</th>
+  </tr></thead><tbody>${tlRows}</tbody></table>
+  <div class="footer">callidus AURUM · TGI The Gold Investment · ${today}</div>
   <script>window.onload=()=>window.print()<\/script>
   </body></html>`;
 
@@ -1064,7 +1260,6 @@ function runGoal() {
                    :  goalType==='total'  ? d.totalWealth
                    :                       d.totalIncome;
 
-  // simulate with given params
   function sim(one, plan, affCnt, affA, ri) {
     const invs = one>0 ? [{ id:0, startMonth:0, principalEUR:one, type:'own' }] : [];
     const pl   = plan>0 ? { active:true, amount:plan, start:0, duration:-1 } : { active:false, amount:0, start:0, duration:-1 };
@@ -1076,11 +1271,9 @@ function runGoal() {
     return d[Math.min(horizon, d.length-1)];
   }
 
-  // Current config result
   const cur = sim(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
   const curVal = getVal(cur);
 
-  // When does current combo reach goal?
   function firstMonth(one, plan, affCnt, affA, ri) {
     const invs = one>0 ? [{ id:0, startMonth:0, principalEUR:one, type:'own' }] : [];
     const pl   = plan>0 ? { active:true, amount:plan, start:0, duration:-1 } : { active:false, amount:0, start:0, duration:-1 };
@@ -1093,7 +1286,6 @@ function runGoal() {
     return null;
   }
 
-  // Binary search – 35 iterations give cent-level precision, stay fast
   function bsearch(fn, lo=0, hi=goalAmt*20, iters=35) {
     for (let i=0;i<iters;i++){ const mid=(lo+hi)/2; fn(mid)>=goalAmt?hi=mid:lo=mid; }
     return hi;
@@ -1102,12 +1294,9 @@ function runGoal() {
   const curReach     = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
   const curReachNoRi = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, false);
 
-  // Find needed amounts
   const needOne  = bsearch(v => getVal(sim(v, 0, 0, 0, withRi)));
   const needPlan = bsearch(v => getVal(sim(0, v, 0, 0, withRi)));
 
-  // For affiliates: search for total AFFILIATE CAPITAL (1 pool) → avoids O(clients) inner loop
-  // Then divide by per-client amount to get number of clients needed
   function simAffCap(totalCap, ri) {
     const affs = totalCap>0 ? [{ id:99, name:'A',
       investments:[{ id:0, startMonth:0, principalEUR:totalCap }], plan:{active:false} }] : [];
@@ -1125,7 +1314,7 @@ function runGoal() {
   const goalLabel = goalType==='liquid'?'Liquides Kapital':goalType==='total'?'Gesamtvermögen':'Monatliche Einnahmen';
 
   let html=`<div class="card">
-    <div class="card-title">🎯 Ergebnisse – Ziel: ${EUR(goalAmt)} ${goalLabel} in ${horizon} Monaten</div>
+    <div class="card-title"><span class="card-icon">${IC.target} Ergebnisse – Ziel: ${EUR(goalAmt)} ${goalLabel} in ${horizon} Monaten</span></div>
 
     <div class="sect">Deine aktuelle Kombination</div>
     <div class="kpi-grid">
@@ -1171,10 +1360,10 @@ function runGoal() {
     </div>
 
     <div class="info" style="margin-top:14px;font-size:12px">
-      ℹ️ <strong>Cash-ROI (garantiert, unabhängig vom Goldpreis):</strong>
+      <strong>Cash-ROI (garantiert, unabhängig vom Goldpreis):</strong>
       36 × 2 % + 30 % Bonus = <strong>102 % auf das eingesetzte Kapital</strong> pro Zyklus (36 Monate).
       Mit ${S.projection} % Goldpreissteigerung/Jahr ergibt sich zusätzlich Goldwertzuwachs.
-      Deine Kalkulation (108 %) ist bei ~2 % Gold­steigerung/Jahr (aktuell eingestellt) und inkl. Goldlieferung korrekt.
+      Bei ~2 % Gold/Jahr und inkl. Goldlieferung: ≈ 108 % Gesamt-ROI.
     </div>
   </div>`;
 
@@ -1184,7 +1373,7 @@ function runGoal() {
 // ─── TAB SWITCHING ───────────────────────────────────────────
 function switchTab(btn) {
   const tab=btn.dataset.tab;
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById(`tab-${tab}`).classList.add('active');
