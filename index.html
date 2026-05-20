@@ -369,6 +369,62 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
   .main-area{margin-left:0}
 }
 @media print{body{background:#fff!important;color:#000!important}.no-print{display:none!important}}
+
+/* ── TOOLTIPS ── */
+[data-tip]{position:relative;cursor:help}
+[data-tip]:hover::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
+  background:rgba(10,10,16,.98);border:1px solid rgba(200,169,81,.25);
+  border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.55;
+  color:var(--text);max-width:280px;width:max-content;z-index:700;
+  box-shadow:0 8px 28px rgba(0,0,0,.55);white-space:normal;pointer-events:none;
+  font-weight:400;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif
+}
+.kpi-label[data-tip]{border-bottom:1px dotted rgba(200,169,81,.35)}
+
+/* ── VERGLEICH-TAB ── */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:18px}
+@media(max-width:700px){.comp-grid{grid-template-columns:1fr}}
+.comp-scenario{background:rgba(255,255,255,.025);border-radius:12px;border:1px solid var(--border2);padding:20px}
+.comp-scenario-a{border-color:rgba(200,169,81,.28)}
+.comp-scenario-b{border-color:rgba(91,156,246,.22)}
+.comp-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.comp-badge{display:inline-block;width:10px;height:10px;border-radius:50%}
+.comp-badge-a{background:var(--gold)}
+.comp-badge-b{background:var(--blue)}
+.comp-kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.comp-kpi{background:var(--card2);border-radius:8px;padding:12px 14px;border:1px solid var(--border)}
+.comp-kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.comp-kpi-val{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.comp-kpi-diff{font-size:11px;margin-top:3px}
+.comp-chart-wrap{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:18px;margin-top:4px}
+
+/* ── PRÄSENTATIONSMODUS ── */
+.pres-bar{
+  display:none;position:sticky;top:0;z-index:300;
+  background:rgba(6,6,10,.94);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:14px 32px;
+  align-items:center;justify-content:space-between;gap:20px
+}
+#app.pres-mode .pres-bar{display:flex !important}
+#app.pres-mode .sidebar{display:none !important}
+#app.pres-mode .top-bar{display:none !important}
+#app.pres-mode .main-area{margin-left:0 !important}
+#app.pres-mode .tab-content{display:none !important}
+#app.pres-mode #tab-dashboard{display:block !important}
+#app.pres-mode .pdf-btn-wrap{display:none !important}
+#app.pres-mode .kpi-value{font-size:28px}
+#app.pres-mode .kpi{padding:22px 18px}
+#app.pres-mode canvas{max-height:280px !important}
+
+/* ── ETWAS GRÖSSER ── */
+body{font-size:15px}
+.btn{font-size:14px;padding:11px 22px}
+.btn-sm{font-size:12.5px;padding:7px 14px}
+.kpi-value{font-size:24px}
+.card-title{font-size:19px}
 </style>
 </head>
 <body>
@@ -403,6 +459,10 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
     <button class="nav-item" data-tab="goal" onclick="switchTab(this)">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
       <span class="nav-label">Zielrechner</span>
+    </button>
+    <button class="nav-item" data-tab="compare" onclick="switchTab(this)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M2 14h9M13 14h9M2 8h4M18 8h4M7 4v16M17 4v16"/></svg>
+      <span class="nav-label">Vergleich</span>
     </button>
   </nav>
 
@@ -441,7 +501,33 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
       <span class="slider-val" id="valCycles">1 (36 Mo.)</span>
     </div>
   </div>
+  <div class="tb-divider"></div>
+  <div>
+    <div class="tb-label">Chart-Horizont</div>
+    <div class="tb-row">
+      <input type="range" id="sliderHorizon" min="3" max="35" step="1" value="10" oninput="onHorizon(this.value)">
+      <span class="slider-val" id="valHorizon">bis 2036</span>
+    </div>
+  </div>
+  <div style="margin-left:auto;flex-shrink:0">
+    <button class="btn btn-outline btn-sm" onclick="togglePres()" title="Präsentationsmodus (ESC zum Beenden)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      Präsentation
+    </button>
+  </div>
 </header>
+
+<!-- ═══ PRÄSENTATIONS-BAR (sichtbar nur im Pres-Mode) ═══ -->
+<div class="pres-bar no-print">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;background:linear-gradient(115deg,#F5C842,#C8A951);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">callidus AURUM</div>
+    <div style="font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">Investitionsplanung</div>
+  </div>
+  <button class="btn btn-outline btn-sm" onclick="togglePres()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    Präsentation beenden
+  </button>
+</div>
 
 <!-- ═══ TAB: INVESTITIONEN ═══ -->
 <div id="tab-investments" class="tab-content active">
@@ -562,9 +648,9 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
 <div id="tab-dashboard" class="tab-content">
 <div class="page">
   <div class="pdf-btn-wrap">
-    <button class="btn btn-outline" onclick="downloadPDF()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      PDF Zusammenfassung
+    <button class="btn btn-gold" onclick="downloadPDF()" style="font-size:14px;padding:11px 24px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      PDF Zusammenfassung erstellen
     </button>
   </div>
   <div class="kpi-section-label">Eigene Investitionen</div>
@@ -691,6 +777,60 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
   <div id="goalResults"></div>
 </div></div>
 
+<!-- ═══ TAB: VERGLEICH ═══ -->
+<div id="tab-compare" class="tab-content">
+<div class="page">
+
+  <div class="card">
+    <div class="card-title">
+      <span class="card-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M2 14h9M13 14h9M2 8h4M18 8h4M7 4v16M17 4v16"/></svg>
+        Szenario-Vergleich
+      </span>
+      <button class="btn btn-gold btn-sm" onclick="runCompare()" style="flex-shrink:0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Vergleich berechnen
+      </button>
+    </div>
+    <div class="comp-grid">
+      <!-- Szenario A -->
+      <div class="comp-scenario comp-scenario-a">
+        <div class="comp-label"><span class="comp-badge comp-badge-a"></span>Szenario A — aktuelle Einstellungen</div>
+        <div id="compA-info" class="pos-meta" style="line-height:1.8">Wird automatisch aus den aktuellen Einstellungen übernommen.</div>
+      </div>
+      <!-- Szenario B -->
+      <div class="comp-scenario comp-scenario-b">
+        <div class="comp-label"><span class="comp-badge comp-badge-b"></span>Szenario B — eigene Konfiguration</div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group"><label>Einmalinvestition (€)</label><input type="number" id="compB-inv" value="10000" min="0" step="500" style="width:130px"></div>
+          <div class="form-group"><label>Monatl. Rate (€)</label><input type="number" id="compB-plan" value="0" min="0" step="100" style="width:110px"></div>
+          <div class="form-group"><label>Zyklen</label><input type="number" id="compB-cycles" value="3" min="1" max="15" step="1" style="width:80px"></div>
+        </div>
+        <div class="row-flex" style="gap:10px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer">
+            <span class="toggle"><input type="checkbox" id="compB-reinvest"><span class="tog-sl"></span></span>
+            Payouts reinvestieren
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="compResults" style="display:none">
+    <div class="comp-kpi-row" id="compKpiRow"></div>
+    <div class="comp-chart-wrap">
+      <div class="chart-title"><span class="chart-title-text">Gesamtvermögen im Vergleich</span>
+        <button class="btn btn-gold btn-sm" onclick="printCompare()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Als PDF drucken
+        </button>
+      </div>
+      <canvas id="cCompare" style="max-height:320px !important"></canvas>
+    </div>
+  </div>
+
+</div></div>
+
 </div><!-- /main-area -->
 </div><!-- /app -->
 
@@ -738,6 +878,7 @@ const S = {
   goldPerGram: 92.50,
   projection: 2,
   cycles: 1,
+  horizonYears: 10,
   investments: [],
   plan: { active:false, amount:0, start:0, duration:-1 },
   affiliates: [],
@@ -778,7 +919,7 @@ function calculate(opts = {}) {
   const gp0           = opts.goldPerGram  ?? S.goldPerGram;
   const gp = m => gpAt(m, gp0, proj);
 
-  const N = cycles * 36 + 37;
+  const N = Math.max(cycles * 36 + 37, (opts.horizonYears ?? S.horizonYears) * 12 + 1);
 
   const positions = investments.map(inv => ({
     ...inv, grams: inv.principalEUR / gp(inv.startMonth)
@@ -922,6 +1063,12 @@ async function fetchGoldPrice(btn) {
 function onGoldPrice(v){ S.goldPerGram=parseFloat(v)||92.5; updateGoldDisplay(); render(); }
 function onProjection(v){ S.projection=parseFloat(v); document.getElementById('valProjection').textContent=parseFloat(v).toFixed(1)+' %'; render(); }
 function onCycles(v){ S.cycles=parseInt(v); document.getElementById('valCycles').textContent=`${v} (${parseInt(v)*36} Mo.)`; populateSelects(); render(); }
+function onHorizon(v){
+  S.horizonYears=parseInt(v);
+  const yr=new Date().getFullYear()+parseInt(v);
+  document.getElementById('valHorizon').textContent=`bis ${yr}`;
+  render();
+}
 function updateGoldDisplay(){ document.getElementById('goldPriceDisplay').textContent=EUR(S.goldPerGram).replace(' €',''); }
 
 // ─── SELECTS ────────────────────────────────────────────────
@@ -1134,7 +1281,8 @@ function renderAffiliates() {
 
 // ─── RENDER: DASHBOARD ───────────────────────────────────────
 function renderDashboard(data) {
-  const totalMo = S.cycles * 36;
+  const totalMo   = S.cycles * 36;
+  const horizonMo = Math.max(totalMo, S.horizonYears * 12);
   const last = data[Math.min(totalMo, data.length-1)];
 
   const planMonths = S.plan.active
@@ -1147,16 +1295,16 @@ function renderDashboard(data) {
   const cashROIVal= ownCap>0 ? ((last.cumReceived/ownCap)*100).toFixed(1)+' %' : '—';
 
   document.getElementById('kpiGrid').innerHTML=`
-    <div class="kpi"><div class="kpi-label">Eigenes Kapital investiert</div><div class="kpi-value c-gold">${EUR(ownCap)}</div></div>
-    <div class="kpi"><div class="kpi-label">Cash-ROI (Auszahlungen)</div><div class="kpi-value c-gold">${cashROIVal}</div>
+    <div class="kpi"><div class="kpi-label" data-tip="Summe aller getätigten Einmalinvestitionen plus die bis Zyklusende gezahlten Sparplanraten.">Eigenes Kapital investiert</div><div class="kpi-value c-gold">${EUR(ownCap)}</div></div>
+    <div class="kpi"><div class="kpi-label" data-tip="Kumulierte Barauszahlungen (2%/Monat × 36 + 30% Treuebonus) geteilt durch investiertes Kapital. Garantiert 102%, unabhängig vom Goldpreis.">Cash-ROI (Auszahlungen)</div><div class="kpi-value c-gold">${cashROIVal}</div>
       <div class="kpi-sub">36×2%+30% = 102 % garantiert</div></div>
-    <div class="kpi"><div class="kpi-label">Gesamt-ROI inkl. Gold (${S.projection}%/Jahr)</div><div class="kpi-value c-green">${totalROI}</div>
+    <div class="kpi"><div class="kpi-label" data-tip="Gesamtrendite inklusive des aktuellen Marktwerts des gelieferten physischen Golds, berechnet mit der eingestellten Goldpreissteigerung von ${S.projection}% p.a.">Gesamt-ROI inkl. Gold (${S.projection}%/Jahr)</div><div class="kpi-value c-green">${totalROI}</div>
       <div class="kpi-sub">bei 2%/Jahr ≈ 108 % nach Zyklus 1</div></div>
-    <div class="kpi"><div class="kpi-label">Gesamte Erträge (Cash)</div><div class="kpi-value c-green">${EUR(last.cumReceived)}</div></div>
-    <div class="kpi"><div class="kpi-label">Liquides Kapital</div><div class="kpi-value">${EUR(last.liquidBal)}</div></div>
-    <div class="kpi"><div class="kpi-label">Phys. Gold geliefert</div><div class="kpi-value c-gold">${GR(last.cumGoldGrams)}</div><div class="kpi-sub">${EUR(last.deliveredVal)}</div></div>
-    <div class="kpi"><div class="kpi-label">Aktives Gold (Händler)</div><div class="kpi-value c-blue">${EUR(last.activeGoldVal)}</div></div>
-    <div class="kpi"><div class="kpi-label">Gesamtvermögen</div><div class="kpi-value c-green">${EUR(last.totalWealth)}</div></div>
+    <div class="kpi"><div class="kpi-label" data-tip="Alle bisherigen Barzahlungen: 2%-Monatspayouts, 30%-Treueboni und Affiliate-Provisionen zusammengerechnet.">Gesamte Erträge (Cash)</div><div class="kpi-value c-green">${EUR(last.cumReceived)}</div></div>
+    <div class="kpi"><div class="kpi-label" data-tip="Verfügbares Bargeld nach Abzug aller Reinvestitionen und Entnahmen. Dieser Betrag steht sofort zur Verfügung.">Liquides Kapital</div><div class="kpi-value">${EUR(last.liquidBal)}</div></div>
+    <div class="kpi"><div class="kpi-label" data-tip="Nach Ende jedes 36-Monats-Zyklus wird das physische Gold nach Hause geliefert. Der EUR-Wert basiert auf dem Goldpreis zum Lieferzeitpunkt plus Wertsteigerung.">Phys. Gold geliefert</div><div class="kpi-value c-gold">${GR(last.cumGoldGrams)}</div><div class="kpi-sub">${EUR(last.deliveredVal)}</div></div>
+    <div class="kpi"><div class="kpi-label" data-tip="Gold, das sich noch aktiv im 36-Monats-Zyklus beim Händler befindet und noch nicht geliefert wurde. Wert zum aktuellen Goldpreis.">Aktives Gold (Händler)</div><div class="kpi-value c-blue">${EUR(last.activeGoldVal)}</div></div>
+    <div class="kpi"><div class="kpi-label" data-tip="Liquides Kapital + Wert des gelieferten physischen Golds + Wert des aktiven Golds beim Händler.">Gesamtvermögen</div><div class="kpi-value c-green">${EUR(last.totalWealth)}</div></div>
   `;
 
   const affCount    = S.affiliates.length;
@@ -1174,7 +1322,7 @@ function renderDashboard(data) {
        <div class="kpi"><div class="kpi-label">Affiliate-Einnahmen kum.</div><div class="kpi-value c-green">${EUR(cumAff)}</div><div class="kpi-sub">gesamt über ${S.cycles} Zyklus/en</div></div>
        <div class="kpi"><div class="kpi-label">Anteil an Gesamtertrag</div><div class="kpi-value c-green">${last.cumReceived>0?(cumAff/last.cumReceived*100).toFixed(1)+' %':'—'}</div></div>`;
 
-  updateCharts(data, totalMo);
+  updateCharts(data, horizonMo);
 }
 
 // ─── PAN / ZOOM (native, kein Plugin) ────────────────────────
@@ -1453,8 +1601,13 @@ function closeChartModal(e) {
   }
 }
 
-// ESC-Taste schließt Modal
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeChartModal(); });
+// ESC: Modal schließen oder Präsentation beenden
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeChartModal();
+    if (document.getElementById('app').classList.contains('pres-mode')) togglePres();
+  }
+});
 
 // ─── RENDER: TIMELINE ────────────────────────────────────────
 function renderTimeline(data) {
@@ -1762,6 +1915,107 @@ function switchTab(btn) {
   if (tab==='affiliates') renderAffiliates();
 }
 
+// ─── PRÄSENTATIONSMODUS ──────────────────────────────────────
+function togglePres() {
+  const app = document.getElementById('app');
+  app.classList.toggle('pres-mode');
+  if (app.classList.contains('pres-mode')) {
+    // Dashboard aktivieren
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.getElementById('tab-dashboard').classList.add('active');
+    const data = calculate();
+    renderDashboard(data);
+  }
+}
+
+// ─── SZENARIOVERGLEICH ───────────────────────────────────────
+let CHT_COMPARE = null;
+
+function runCompare() {
+  const bInv    = parseFloat(document.getElementById('compB-inv').value)  || 0;
+  const bPlan   = parseFloat(document.getElementById('compB-plan').value) || 0;
+  const bCycles = parseInt(document.getElementById('compB-cycles').value) || 3;
+  const bReinv  = document.getElementById('compB-reinvest').checked;
+
+  const invB  = bInv > 0 ? [{id:9901, principalEUR:bInv, startMonth:0}] : [];
+  const planB = {active:bPlan>0, amount:bPlan, start:0, duration:-1};
+  const dataA = calculate();
+  const dataB = calculate({
+    investments:invB, plan:planB, affiliates:[], withdrawals:[],
+    reinvest:bReinv, cycleReinvest:false, cycles:bCycles,
+    horizonYears:S.horizonYears, projection:S.projection, goldPerGram:S.goldPerGram
+  });
+
+  const moA   = S.cycles * 36;
+  const moB   = bCycles * 36;
+  const moMax = Math.max(moA, moB, S.horizonYears * 12);
+  const lastA = dataA[Math.min(moA, dataA.length-1)];
+  const lastB = dataB[Math.min(moB, dataB.length-1)];
+
+  // Szenario A Zusammenfassung aktualisieren
+  const capA = S.investments.reduce((s,i)=>s+i.principalEUR,0);
+  document.getElementById('compA-info').innerHTML =
+    `Einmalinvestitionen: <strong>${EUR(capA)}</strong><br>
+     ${S.plan.active?`Sparplan: <strong>${EUR(S.plan.amount)}/Mo.</strong><br>`:''}
+     Zyklen: <strong>${S.cycles}</strong> &nbsp;·&nbsp; Goldpreis: <strong>${EUR(S.goldPerGram)}/g</strong>`;
+
+  // KPI-Vergleich
+  const kpis = [
+    { lbl:'Investiertes Kapital', a: S.investments.reduce((s,i)=>s+i.principalEUR,0)+(S.plan.active?S.plan.amount*Math.max(0,moA-S.plan.start):0), b: bInv+(bPlan>0?bPlan*moB:0), fmt:EUR, invert:false },
+    { lbl:'Gesamte Erträge', a:lastA.cumReceived, b:lastB.cumReceived, fmt:EUR, invert:false },
+    { lbl:'Phys. Gold (g)', a:lastA.cumGoldGrams, b:lastB.cumGoldGrams, fmt:GR, invert:false },
+    { lbl:'Gesamtvermögen', a:lastA.totalWealth, b:lastB.totalWealth, fmt:EUR, invert:false },
+  ];
+
+  document.getElementById('compKpiRow').innerHTML = kpis.map(k => {
+    const diff = k.b - k.a;
+    const diffTxt = diff===0 ? '' :
+      `<div class="comp-kpi-diff" style="color:${diff>0?'var(--green)':'var(--red)'}">
+        ${diff>0?'+':''}${k.fmt(diff)} (B vs A)
+      </div>`;
+    return `<div class="comp-kpi">
+      <div class="comp-kpi-lbl">${k.lbl}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
+        <div><div style="font-size:10px;color:var(--gold);margin-bottom:2px">Szenario A</div><div class="comp-kpi-val c-gold">${k.fmt(k.a)}</div></div>
+        <div><div style="font-size:10px;color:var(--blue);margin-bottom:2px">Szenario B</div><div class="comp-kpi-val c-blue">${k.fmt(k.b)}</div></div>
+      </div>
+      ${diffTxt}
+    </div>`;
+  }).join('');
+
+  // Vergleichs-Chart
+  const dispMax = Math.min(moMax, dataA.length-1, dataB.length-1);
+  const labelsC = dataA.slice(0, dispMax+1).map(d=>d.label);
+  if (CHT_COMPARE) { CHT_COMPARE.destroy(); CHT_COMPARE = null; }
+  const ctxC = document.getElementById('cCompare');
+  CHT_COMPARE = new Chart(ctxC, {
+    type:'line',
+    data:{ labels:labelsC, datasets:[
+      { label:'Szenario A – Gesamtvermögen', data:dataA.slice(0,dispMax+1).map(d=>d.totalWealth), borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,.07)', fill:true, tension:.35, pointRadius:0 },
+      { label:'Szenario B – Gesamtvermögen', data:dataB.slice(0,dispMax+1).map(d=>d.totalWealth), borderColor:'#5B9CF6', backgroundColor:'rgba(91,156,246,.07)', fill:true, tension:.35, pointRadius:0 }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{
+        legend:{ labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }},
+        tooltip:{ callbacks:{ label:ctx=>` ${EUR(ctx.parsed.y)}` }}
+      },
+      scales:{
+        x:{ ticks:{ color:'#7C7670', maxRotation:45, font:{size:9}}, grid:{ color:'rgba(255,255,255,.04)'}},
+        y:{ ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}}
+      }
+    }
+  });
+  enablePan(ctxC, CHT_COMPARE);
+
+  document.getElementById('compResults').style.display = 'block';
+}
+
+function printCompare() {
+  window.print();
+}
+
 // ─── MAIN RENDER ─────────────────────────────────────────────
 function render() {
   const data=calculate();
@@ -1776,6 +2030,8 @@ function render() {
 
 // ─── INIT ────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
+  const initYr = new Date().getFullYear() + S.horizonYears;
+  document.getElementById('valHorizon').textContent = `bis ${initYr}`;
   updateGoldDisplay(); populateSelects(); render();
 });
 </script>
