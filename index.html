@@ -20,7 +20,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 body{
-  font-family:'Inter',-apple-system,sans-serif;color:var(--text);min-height:100vh;font-size:13.5px;
+  font-family:'Inter',-apple-system,sans-serif;color:var(--text);min-height:100vh;font-size:15.5px;
   background-color:var(--bg);
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='110'%3E%3Crect x='7' y='7' width='206' height='96' rx='10' fill='none' stroke='rgba(200%2C169%2C81%2C0.052)' stroke-width='1'/%3E%3Crect x='15' y='15' width='190' height='80' rx='6' fill='none' stroke='rgba(200%2C169%2C81%2C0.028)' stroke-width='1'/%3E%3Cline x1='7' y1='32' x2='213' y2='32' stroke='rgba(200%2C169%2C81%2C0.025)' stroke-width='1'/%3E%3Cline x1='7' y1='78' x2='213' y2='78' stroke='rgba(200%2C169%2C81%2C0.025)' stroke-width='1'/%3E%3C/svg%3E") 0 0/220px 110px,
@@ -50,21 +50,22 @@ body{
 }
 .tgi-logo:hover{filter:drop-shadow(0 2px 20px rgba(200,169,81,.6))}
 .logo-wordmark{
-  font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;line-height:1;
+  font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;line-height:1;
   letter-spacing:.04em;
   background:linear-gradient(115deg,#7A5C10 0%,#F5C842 38%,#C8A951 58%,#F5C842 74%,#7A5C10 100%);
   background-size:240% auto;
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   animation:shimmer 5s linear infinite
 }
-.logo-tagline{font-size:9.5px;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase}
+.logo-tagline{font-size:11.5px;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase}
+.logo-copy{font-size:9px;color:var(--muted2);opacity:.55;letter-spacing:.06em;margin-top:8px;font-family:'Inter',sans-serif}
 @keyframes shimmer{0%{background-position:0% center}100%{background-position:240% center}}
 
 .sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
 .nav-item{
   display:flex;align-items:center;gap:11px;padding:10px 14px;
   border-radius:10px;border:1px solid transparent;background:none;
-  color:var(--muted);cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;
+  color:var(--muted);cursor:pointer;font-size:15px;font-family:'Inter',sans-serif;
   font-weight:400;text-align:left;width:100%;transition:all .17s ease
 }
 .nav-item:hover{color:var(--gold3);background:rgba(200,169,81,.06);border-color:rgba(200,169,81,.09)}
@@ -80,14 +81,14 @@ body{
   padding:16px 16px 18px;border-top:1px solid var(--border);
   background:linear-gradient(0deg,rgba(200,169,81,.04) 0%,transparent 100%)
 }
-.sidebar-gold-lbl{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sidebar-gold-lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .sidebar-gold-price{
   font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;
   color:var(--gold2);display:flex;align-items:baseline;gap:3px;margin-bottom:10px
 }
-.sidebar-gold-price .unit{font-size:11px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:400}
+.sidebar-gold-price .unit{font-size:15px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:400}
 .sidebar-gold-ctrls{display:flex;gap:6px;align-items:center}
-.sidebar-gold-ctrls input[type=number]{width:82px!important;font-size:12px!important;padding:5px 9px!important}
+.sidebar-gold-ctrls input[type=number]{width:82px!important;font-size:14px!important;padding:5px 9px!important}
 
 /* ── MAIN ── */
 .main-area{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
@@ -97,10 +98,10 @@ body{
   display:flex;align-items:center;gap:22px;flex-wrap:wrap;
   position:sticky;top:0;z-index:100
 }
-.tb-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.tb-label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .tb-row{display:flex;align-items:center;gap:8px}
 input[type=range]{accent-color:var(--gold);width:110px}
-.slider-val{font-size:13px;font-weight:600;color:var(--gold);min-width:50px;font-variant-numeric:tabular-nums}
+.slider-val{font-size:15px;font-weight:600;color:var(--gold);min-width:50px;font-variant-numeric:tabular-nums}
 .tb-divider{width:1px;height:32px;background:var(--border)}
 
 /* ── PAGE ── */
@@ -118,7 +119,7 @@ input[type=range]{accent-color:var(--gold);width:110px}
   background:linear-gradient(90deg,transparent,rgba(200,169,81,.3),transparent)
 }
 .card-title{
-  font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--gold3);
+  font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--gold3);
   margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;
   gap:8px;letter-spacing:.02em
 }
@@ -127,11 +128,11 @@ input[type=range]{accent-color:var(--gold);width:110px}
 /* ── FORMS ── */
 .form-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 .form-group{display:flex;flex-direction:column;gap:4px}
-.form-group label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.form-group label{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 input[type=number],input[type=text],select{
   background:rgba(255,255,255,.04);border:1px solid var(--border2);
   border-radius:8px;padding:8px 12px;color:var(--text);
-  font-size:13.5px;font-family:'Inter',sans-serif;width:160px;
+  font-size:15.5px;font-family:'Inter',sans-serif;width:160px;
   transition:border-color .15s,box-shadow .15s
 }
 input[type=number]:focus,input[type=text]:focus,select:focus{
@@ -146,7 +147,7 @@ select{
 /* ── BUTTONS ── */
 .btn{
   display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
-  border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;
+  border-radius:8px;border:none;cursor:pointer;font-size:15px;font-weight:500;
   font-family:'Inter',sans-serif;transition:all .17s ease;white-space:nowrap
 }
 .btn:hover{opacity:.88;transform:translateY(-1px)}
@@ -180,9 +181,9 @@ select{
 }
 .kpi:hover{border-color:rgba(200,169,81,.24);box-shadow:0 4px 20px rgba(200,169,81,.08)}
 .kpi:hover::after{opacity:.5}
-.kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.kpi-label{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
 .kpi-value{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
-.kpi-sub{font-size:10.5px;color:var(--muted);margin-top:3px}
+.kpi-sub{font-size:12.5px;color:var(--muted);margin-top:3px}
 
 /* ── CHARTS ── */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
@@ -191,13 +192,17 @@ select{
   background:var(--card);backdrop-filter:blur(12px);border-radius:var(--radius);
   border:1px solid var(--border);padding:18px;position:relative;overflow:hidden
 }
+.chart-card canvas{cursor:grab}
+.chart-card canvas:active{cursor:grabbing}
+.chart-modal-scroll canvas{cursor:grab}
+.chart-modal-scroll canvas:active{cursor:grabbing}
 .chart-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(200,169,81,.24),transparent);
   z-index:1;pointer-events:none
 }
 .chart-title{
-  font-size:10.5px;font-weight:500;color:var(--muted);text-transform:uppercase;
+  font-size:12.5px;font-weight:500;color:var(--muted);text-transform:uppercase;
   letter-spacing:.09em;margin-bottom:14px;
   display:flex;align-items:center;justify-content:space-between;gap:8px
 }
@@ -231,12 +236,11 @@ canvas{max-height:240px!important}
   padding:16px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0
 }
 .chart-modal-title{
-  font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--gold3)
+  font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold3)
 }
-.chart-modal-hint{font-size:11px;color:var(--muted);margin-top:2px}
+.chart-modal-hint{font-size:15px;color:var(--muted);margin-top:2px}
 .chart-modal-scroll{
-  overflow-x:auto;overflow-y:hidden;padding:20px 24px;flex:1;
-  scrollbar-width:thin;scrollbar-color:rgba(200,169,81,.3) transparent
+  overflow:hidden;padding:20px 24px;flex:1;position:relative
 }
 .chart-modal-scroll::-webkit-scrollbar{height:5px}
 .chart-modal-scroll::-webkit-scrollbar-track{background:transparent}
@@ -245,8 +249,8 @@ canvas{max-height:240px!important}
 /* ── TABLE ── */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;white-space:nowrap}
+th{text-align:left;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.03);font-size:14px;white-space:nowrap}
 tr:hover td{background:rgba(200,169,81,.03)}
 tr.hl td{background:rgba(200,169,81,.07)}
 tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
@@ -260,7 +264,7 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
 .toggle input:checked+.tog-sl::before{transform:translateX(20px);background:#080600}
 
 /* ── TAGS ── */
-.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:15px;font-weight:500}
 .tag-own{background:rgba(200,169,81,.1);color:var(--gold);border:1px solid rgba(200,169,81,.2)}
 .tag-monthly{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
 .tag-reinvest{background:rgba(61,184,112,.1);color:var(--green);border:1px solid rgba(61,184,112,.2)}
@@ -277,7 +281,7 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
 .pos-item:hover{border-color:rgba(200,169,81,.16)}
 .pos-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1}
 .pos-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.pos-meta{font-size:11px;color:var(--muted)}
+.pos-meta{font-size:15px;color:var(--muted)}
 
 /* ── INFO ── */
 .info{background:rgba(200,169,81,.07);border:1px solid rgba(200,169,81,.18);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--muted);margin-bottom:12px}
@@ -286,20 +290,20 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
 .info-blue{background:rgba(91,156,246,.07);border-color:rgba(91,156,246,.2);color:var(--blue)}
 
 /* ── MISC ── */
-.sect{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 8px}
+.sect{font-size:14px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:14px 0 8px}
 .divider{height:1px;background:var(--border);margin:16px 0}
 .row-flex{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.empty{text-align:center;padding:32px;color:var(--muted2);font-size:13px}
+.empty{text-align:center;padding:32px;color:var(--muted2);font-size:15px}
 .c-gold{color:var(--gold)}.c-gold2{color:var(--gold2)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}.c-red{color:var(--red)}.c-muted{color:var(--muted)}.c-purple{color:var(--purple)}
 
 .goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:700px){.goal-grid{grid-template-columns:1fr}}
 .goal-scenario{background:rgba(255,255,255,.025);border-radius:10px;border:1px solid var(--border2);padding:16px;transition:border-color .15s}
 .goal-scenario:hover{border-color:rgba(200,169,81,.2)}
-.goal-scenario h4{font-size:10.5px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em}
-.cycle-badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(200,169,81,.1);color:var(--gold);border:1px solid rgba(200,169,81,.22)}
+.goal-scenario h4{font-size:12.5px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em}
+.cycle-badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:20px;font-size:15px;font-weight:600;background:rgba(200,169,81,.1);color:var(--gold);border:1px solid rgba(200,169,81,.22)}
 .aff-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(162px,1fr));gap:10px;margin-bottom:20px}
-.kpi-section-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.kpi-section-label{font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border)}
 .pdf-btn-wrap{display:flex;justify-content:flex-end;margin-bottom:16px}
 
 /* ── RESPONSIVE ── */
@@ -319,8 +323,8 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
     flex-direction:row;align-items:center;gap:8px;background:none
   }
   .tgi-logo{height:30px}
-  /* Nur TGI-Icon zeigen – Schriftzug und Tagline ausblenden */
-  .logo-wordmark,.logo-tagline{display:none}
+  /* Nur TGI-Icon zeigen – Schriftzug, Tagline und Copyright ausblenden */
+  .logo-wordmark,.logo-tagline,.logo-copy{display:none}
   .sidebar-gold{display:none}
   .sidebar-nav{
     flex:1;flex-direction:row;
@@ -343,6 +347,7 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
     <img src="images/TGI-Icon.png" alt="TGI" class="tgi-logo">
     <div class="logo-wordmark">callidus AURUM</div>
     <div class="logo-tagline">Physisches Gold · Rendite &amp; Planung</div>
+    <div class="logo-copy">&copy; 2026 Sven Müllers inc. claude</div>
   </div>
 
   <nav class="sidebar-nav">
@@ -399,8 +404,8 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
   <div>
     <div class="tb-label">Laufzeit (Zyklen à 36 Monate)</div>
     <div class="tb-row">
-      <input type="range" id="sliderCycles" min="1" max="5" step="1" value="1" oninput="onCycles(this.value)">
-      <span class="slider-val" id="valCycles">1</span>
+      <input type="range" id="sliderCycles" min="1" max="15" step="1" value="1" oninput="onCycles(this.value)">
+      <span class="slider-val" id="valCycles">1 (36 Mo.)</span>
     </div>
   </div>
 </header>
@@ -536,7 +541,7 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
   <div class="chart-grid">
     <div class="chart-card">
       <div class="chart-title">
-        <span class="chart-title-text">Gesamtvermögen über Zeit &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonus + Lieferung</span></span>
+        <span class="chart-title-text">Gesamtvermögen über Zeit &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:14px">│ = Bonus + Lieferung</span></span>
         <button class="chart-expand-btn" onclick="expandChart('cTotal')" title="Detailansicht">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
         </button>
@@ -545,7 +550,7 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
     </div>
     <div class="chart-card">
       <div class="chart-title">
-        <span class="chart-title-text">Monatliche Einnahmen &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:10px">│ = Bonusmonat</span></span>
+        <span class="chart-title-text">Monatliche Einnahmen &nbsp;·&nbsp; <span style="color:rgba(240,192,64,.65);font-size:14px">│ = Bonusmonat</span></span>
         <button class="chart-expand-btn" onclick="expandChart('cMonthly')" title="Detailansicht">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
         </button>
@@ -642,7 +647,7 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
     <div class="form-row" style="gap:24px;margin-top:4px">
       <div class="row-flex">
         <label class="toggle"><input type="checkbox" id="g_reinvest"><span class="tog-sl"></span></label>
-        <span style="font-size:13px">Mit Reinvestition</span>
+        <span style="font-size:15px">Mit Reinvestition</span>
       </div>
       <button class="btn btn-gold" onclick="runGoal()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
@@ -662,12 +667,18 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
     <div class="chart-modal-header">
       <div>
         <div class="chart-modal-title" id="chartModalTitle"></div>
-        <div class="chart-modal-hint">Horizontal scrollbar bei vielen Monaten · Klick außerhalb zum Schließen</div>
+        <div class="chart-modal-hint">Maus-Drag: Pan · Mausrad: Zoom · Doppelklick: Zoom zurücksetzen</div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="closeChartModal()">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        Schließen
-      </button>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        <button class="btn btn-outline btn-sm" onclick="resetModalZoom()" id="btnModalReset" style="gap:5px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="closeChartModal()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Schließen
+        </button>
+      </div>
     </div>
     <div class="chart-modal-scroll">
       <canvas id="cModal"></canvas>
@@ -877,7 +888,7 @@ async function fetchGoldPrice(btn) {
 
 function onGoldPrice(v){ S.goldPerGram=parseFloat(v)||92.5; updateGoldDisplay(); render(); }
 function onProjection(v){ S.projection=parseFloat(v); document.getElementById('valProjection').textContent=parseFloat(v).toFixed(1)+' %'; render(); }
-function onCycles(v){ S.cycles=parseInt(v); document.getElementById('valCycles').textContent=v; populateSelects(); render(); }
+function onCycles(v){ S.cycles=parseInt(v); document.getElementById('valCycles').textContent=`${v} (${parseInt(v)*36} Mo.)`; populateSelects(); render(); }
 function updateGoldDisplay(){ document.getElementById('goldPriceDisplay').textContent=EUR(S.goldPerGram).replace(' €',''); }
 
 // ─── SELECTS ────────────────────────────────────────────────
@@ -994,7 +1005,7 @@ function renderPositions() {
       </div>
       <div class="pos-right">
         <div style="text-align:right">
-          <div class="c-gold" style="font-size:12px">${EUR(inv.principalEUR*0.02)}/Mo.</div>
+          <div class="c-gold" style="font-size:14px">${EUR(inv.principalEUR*0.02)}/Mo.</div>
           <div class="pos-meta">+${EUR(inv.principalEUR*0.30)} Bonus</div>
         </div>
         <button class="btn btn-red btn-sm" onclick="removeInvestment(${inv.id})">${IC.close}</button>
@@ -1040,7 +1051,7 @@ function renderAffiliates() {
         <div class="pos-main"><span class="tag tag-aff">Einmalinvestition</span>
           <strong>${EUR(ai.principalEUR)}</strong>
           <span class="pos-meta">ab ${monthLabel(ai.startMonth)}</span>
-          <span class="c-blue" style="font-size:12px">→ ${EUR(ai.principalEUR*0.01)}/Mo. für dich</span>
+          <span class="c-blue" style="font-size:14px">→ ${EUR(ai.principalEUR*0.01)}/Mo. für dich</span>
         </div>
         <button class="btn btn-red btn-sm" onclick="removeAffInv(${aff.id},${ai.id})">${IC.close}</button>
       </div>`;
@@ -1050,7 +1061,7 @@ function renderAffiliates() {
           <div class="pos-main"><span class="tag tag-aff">${IC.plan} Sparplan</span>
             <strong>${EUR(aff.plan.amount)}/Monat</strong>
             <span class="pos-meta">ab ${monthLabel(aff.plan.start)}${aff.plan.duration>=0?' für '+aff.plan.duration+' Mo.':' (unbegrenzt)'}</span>
-            <span class="c-blue" style="font-size:12px">→ ${EUR(aff.plan.amount*0.01)}/Mo. pro aktiver Rate</span>
+            <span class="c-blue" style="font-size:14px">→ ${EUR(aff.plan.amount*0.01)}/Mo. pro aktiver Rate</span>
           </div>
           <button class="btn btn-red btn-sm" onclick="clearAffPlan(${aff.id})">${IC.close}</button>
         </div>` : '';
@@ -1133,6 +1144,79 @@ function renderDashboard(data) {
   updateCharts(data, totalMo);
 }
 
+// ─── PAN / ZOOM (native, kein Plugin) ────────────────────────
+let _panDrag = null;
+
+document.addEventListener('mousemove', e => {
+  if (!_panDrag) return;
+  const { canvas, chart, labels, n, startX, startMin, startMax, view } = _panDrag;
+  const xAxis = chart.scales?.x;
+  if (!xAxis) return;
+  const px = xAxis.right - xAxis.left;
+  if (px <= 0) return;
+  const range = startMax - startMin;
+  const delta = Math.round(-(e.clientX - startX) / px * range);
+  let vMin = Math.max(0, startMin + delta);
+  let vMax = Math.min(n - 1, vMin + range);
+  vMin = Math.max(0, vMax - range);
+  view.min = vMin; view.max = vMax;
+  chart.options.scales.x.min = labels[vMin];
+  chart.options.scales.x.max = labels[vMax];
+  chart.update('none');
+});
+
+document.addEventListener('mouseup', () => {
+  if (_panDrag) { _panDrag.canvas.style.cursor = 'grab'; _panDrag = null; }
+});
+
+function enablePan(canvas, chart) {
+  if (!canvas) return;
+  if (canvas._panClean) { canvas._panClean(); canvas._panClean = null; }
+  if (!chart || chart.config.type === 'doughnut') return;
+
+  const labels = chart.data.labels;
+  const n = labels.length;
+  const view = { min: 0, max: n - 1 };
+
+  function onDown(e) {
+    e.preventDefault();
+    _panDrag = { canvas, chart, labels, n, startX: e.clientX, startMin: view.min, startMax: view.max, view };
+    canvas.style.cursor = 'grabbing';
+  }
+
+  function onWheel(e) {
+    e.preventDefault();
+    const range = view.max - view.min;
+    const center = Math.round((view.min + view.max) / 2);
+    const factor = e.deltaY > 0 ? 1.15 : 1 / 1.15;
+    const newRange = Math.max(6, Math.min(n - 1, Math.round(range * factor)));
+    view.min = Math.max(0, center - Math.floor(newRange / 2));
+    view.max = Math.min(n - 1, view.min + newRange);
+    view.min = Math.max(0, view.max - newRange);
+    chart.options.scales.x.min = labels[view.min];
+    chart.options.scales.x.max = labels[view.max];
+    chart.update('none');
+  }
+
+  function onDblClick() {
+    view.min = 0; view.max = n - 1;
+    chart.options.scales.x.min = undefined;
+    chart.options.scales.x.max = undefined;
+    chart.update();
+  }
+
+  canvas.addEventListener('mousedown', onDown, { passive: false });
+  canvas.addEventListener('wheel', onWheel, { passive: false });
+  canvas.addEventListener('dblclick', onDblClick);
+
+  canvas._panClean = () => {
+    canvas.removeEventListener('mousedown', onDown);
+    canvas.removeEventListener('wheel', onWheel);
+    canvas.removeEventListener('dblclick', onDblClick);
+  };
+  canvas._panReset = onDblClick;
+}
+
 // ─── CHARTS ──────────────────────────────────────────────────
 const CHT={};
 let CHT_MODAL = null;
@@ -1211,6 +1295,11 @@ function updateCharts(data, totalMo) {
     labels:['2 % Monatspayouts','30 % Treueboni','Affiliate 1 %','Reinvestiert'],
     datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#F0C040','#5B9CF6','#3DB870'], borderWidth:0 }]
   },{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }}, tooltip:{ callbacks:{ label:ctx=>` ${EUR(ctx.parsed)}`}}}});
+
+  // Pan/Zoom für Zeitreihen-Charts aktivieren
+  ['cTotal','cMonthly','cGold'].forEach(id => {
+    enablePan(document.getElementById(id), CHT[id]);
+  });
 }
 
 // ─── CHART MODAL ─────────────────────────────────────────────
@@ -1227,16 +1316,13 @@ function expandChart(id) {
   const labels = disp.map(d => d.label);
   const n      = disp.length;
 
-  // Canvas-Größe: Modal ist max 1440px breit, Canvas darf breiter sein → scrollt
-  const pxPer  = id === 'cMonthly' ? 22 : 15;
   const isDoughnut = id === 'cBreak';
-  const w = isDoughnut ? 520 : Math.max(900, n * pxPer);
-  const h = isDoughnut ? 420 : 380;
 
   const canvas = document.getElementById('cModal');
   if (CHT_MODAL) { CHT_MODAL.destroy(); CHT_MODAL = null; }
-  canvas.style.width  = w + 'px';
-  canvas.style.height = h + 'px';
+  // Canvas nimmt die volle Modal-Breite ein; Zoom/Pan übernehmen die Navigation
+  canvas.style.width  = '';
+  canvas.style.height = isDoughnut ? '420px' : '400px';
 
   // Bonus-Annotationen für Modal
   const ann = {};
@@ -1252,7 +1338,7 @@ function expandChart(id) {
   });
 
   const base = {
-    responsive:false, maintainAspectRatio:false,
+    responsive:true, maintainAspectRatio:false,
     plugins:{
       legend:{ labels:{ color:'#7C7670', font:{size:12}, boxWidth:14 }},
       tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}},
@@ -1309,15 +1395,23 @@ function expandChart(id) {
       labels:['2 % Monatspayouts','30 % Treueboni','Affiliate 1 %','Reinvestiert'],
       datasets:[{ data:[tot2,tot30,totAff,totRe], backgroundColor:['#C8A951','#F0C040','#5B9CF6','#3DB870'], borderWidth:0 }]
     };
-    opts = { responsive:false, maintainAspectRatio:false,
+    opts = { responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{ position:'right', labels:{ color:'#7C7670', font:{size:13}, boxWidth:14 }},
         tooltip:{ callbacks:{ label:ctx=>` ${EUR(ctx.parsed)}`}}}
     };
   }
 
   CHT_MODAL = new Chart(canvas, { type, data, options: opts });
+
+  if (!isDoughnut) enablePan(canvas, CHT_MODAL);
+
   document.getElementById('chartModalTitle').textContent = CHART_TITLES[id] || '';
   document.getElementById('chartModal').classList.add('open');
+}
+
+function resetModalZoom() {
+  const c = document.getElementById('cModal');
+  if (c && c._panReset) c._panReset();
 }
 
 function closeChartModal(e) {
@@ -1415,27 +1509,27 @@ function downloadPDF() {
   <title>callidus AURUM – Szenario ${today}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#1a1a1a;padding:24px}
-    h1{font-size:22px;color:#8B6914;margin-bottom:2px;font-family:Georgia,serif}
-    .brand{font-size:11px;color:#aaa;font-style:italic;margin-bottom:4px}
-    .sub{font-size:12px;color:#666;margin-bottom:20px}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;padding:24px}
+    h1{font-size:24px;color:#8B6914;margin-bottom:2px;font-family:Georgia,serif}
+    .brand{font-size:15px;color:#aaa;font-style:italic;margin-bottom:4px}
+    .sub{font-size:14px;color:#666;margin-bottom:20px}
     h2{font-size:14px;color:#8B6914;margin:20px 0 8px;padding-bottom:4px;border-bottom:2px solid #C8A951}
     .kpi-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
     .kpi{background:#fafaf5;border:1px solid #E8D8A0;border-radius:6px;padding:10px 14px;flex:1;min-width:140px}
-    .kpi-lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+    .kpi-lbl{font-size:14px;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
     .kpi-val{font-size:16px;font-weight:700;color:#1a1a1a}
-    .kpi-sub{font-size:10px;color:#888;margin-top:2px}
+    .kpi-sub{font-size:14px;color:#888;margin-top:2px}
     .gold{color:#8B6914}.green{color:#1a6b2e}.blue{color:#1a4b8b}
-    table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
-    th{background:#8B6914;color:#fff;padding:5px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+    table{width:100%;border-collapse:collapse;font-size:15px;margin-bottom:12px}
+    th{background:#8B6914;color:#fff;padding:5px 8px;text-align:left;font-size:14px;text-transform:uppercase;letter-spacing:.04em}
     td{padding:4px 8px;border-bottom:1px solid #eee}
     tr:nth-child(even) td{background:#fafaf5}
     .charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
     .chart-box img{width:100%;border:1px solid #eee;border-radius:4px}
-    .chart-lbl{font-size:10px;color:#888;margin-bottom:4px}
-    .settings-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;font-size:12px}
+    .chart-lbl{font-size:14px;color:#888;margin-bottom:4px}
+    .settings-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;font-size:14px}
     .settings-row span{background:#fafaf5;border:1px solid #E8D8A0;border-radius:4px;padding:3px 8px}
-    .footer{margin-top:24px;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
+    .footer{margin-top:24px;font-size:14px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
     @media print{body{padding:12px}@page{margin:1.5cm}}
   </style></head><body>
   <div class="brand">TGI · The Gold Investment</div>
@@ -1584,32 +1678,32 @@ function runGoal() {
     <div class="goal-grid">
       <div class="goal-scenario">
         <h4>Nur Einmaleinlage</h4>
-        <div class="kpi-value c-gold" style="font-size:22px;margin-bottom:4px">${EUR(needOne)}</div>
+        <div class="kpi-value c-gold" style="font-size:24px;margin-bottom:4px">${EUR(needOne)}</div>
         <div class="kpi-sub">einmalig investieren</div>
       </div>
       <div class="goal-scenario">
         <h4>Nur Ratenzahlung</h4>
-        <div class="kpi-value c-blue" style="font-size:22px;margin-bottom:4px">${EUR(needPlan)}</div>
+        <div class="kpi-value c-blue" style="font-size:24px;margin-bottom:4px">${EUR(needPlan)}</div>
         <div class="kpi-sub">pro Monat</div>
       </div>
       <div class="goal-scenario">
         <h4>Nur Affiliates (à 1.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${needAff1k} Klienten</div>
+        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff1k} Klienten</div>
         <div class="kpi-sub">je 1.000 € Einmalanlage (= ${EUR(needAff1k*1000)} Gesamtkapital)</div>
       </div>
       <div class="goal-scenario">
         <h4>Nur Affiliates (à 5.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${needAff5k} Klienten</div>
+        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff5k} Klienten</div>
         <div class="kpi-sub">je 5.000 € Einmalanlage (= ${EUR(needAff5k*5000)} Gesamtkapital)</div>
       </div>
       <div class="goal-scenario">
         <h4>Nur Affiliates (à 10.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:22px;margin-bottom:4px">${needAff10k} Klienten</div>
+        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff10k} Klienten</div>
         <div class="kpi-sub">je 10.000 € Einmalanlage (= ${EUR(needAff10k*10000)} Gesamtkapital)</div>
       </div>
     </div>
 
-    <div class="info" style="margin-top:14px;font-size:12px">
+    <div class="info" style="margin-top:14px;font-size:14px">
       <strong>Cash-ROI (garantiert, unabhängig vom Goldpreis):</strong>
       36 × 2 % + 30 % Bonus = <strong>102 % auf das eingesetzte Kapital</strong> pro Zyklus (36 Monate).
       Mit ${S.projection} % Goldpreissteigerung/Jahr ergibt sich zusätzlich Goldwertzuwachs.
