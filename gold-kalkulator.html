@@ -157,7 +157,10 @@ body{
 }
 .sidebar-gold-price .unit{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:400}
 .sidebar-gold-ctrls{display:flex;gap:6px;align-items:center}
-.sidebar-gold-ctrls input[type=number]{width:82px!important;font-size:14px!important;padding:5px 9px!important}
+.sidebar-gold-ctrls input[type=number]{width:88px!important;font-size:14px!important;padding:5px 9px!important}
+.unit-btns{display:flex;gap:3px;margin-top:7px}
+.unit-btn{padding:3px 9px!important;font-size:11px!important;min-height:24px!important;border-radius:5px!important;border:1px solid rgba(200,169,81,.2)!important;background:transparent!important;color:var(--muted)!important;transition:all .15s}
+.unit-btn.active{background:rgba(200,169,81,.18)!important;border-color:rgba(200,169,81,.45)!important;color:var(--gold)!important;font-weight:600!important}
 
 /* ── MAIN ── */
 .main-area{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
@@ -510,14 +513,19 @@ body{font-size:15px}
     <div class="sidebar-gold-lbl">Goldpreis aktuell</div>
     <div class="sidebar-gold-price">
       <span id="goldPriceDisplay">—</span>
-      <span class="unit">&thinsp;/g</span>
+      <span class="unit" id="goldUnitLabel">&thinsp;€/g</span>
     </div>
     <div class="sidebar-gold-ctrls">
-      <input type="number" id="goldPriceInput" value="92.50" min="1" step="0.01" oninput="onGoldPrice(this.value)">
+      <input type="number" id="goldPriceInput" value="125.00" min="1" step="0.01" oninput="onGoldPrice(this.value)">
       <button class="btn btn-outline btn-sm" onclick="fetchGoldPrice(this)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         Live
       </button>
+    </div>
+    <div class="unit-btns">
+      <button class="unit-btn active" data-unit="g"  onclick="setGoldUnit('g')">g</button>
+      <button class="unit-btn"        data-unit="oz" onclick="setGoldUnit('oz')">oz</button>
+      <button class="unit-btn"        data-unit="kg" onclick="setGoldUnit('kg')">kg</button>
     </div>
   </div>
 </aside>
@@ -557,7 +565,7 @@ body{font-size:15px}
     </div>
     <div class="tb-row" style="gap:6px">
       <span class="tb-gold-val" id="tbGoldPrice">—</span>
-      <span style="font-size:12px;color:var(--muted);align-self:flex-end;padding-bottom:1px">€/g</span>
+      <span id="tbGoldUnit" style="font-size:12px;color:var(--muted);align-self:flex-end;padding-bottom:1px">€/g</span>
     </div>
     <div class="tb-gold-time" id="tbGoldTime"></div>
   </div>
@@ -932,6 +940,7 @@ const IC = {
 // ─── STATE ──────────────────────────────────────────────────
 const S = {
   goldPerGram: 125.00,
+  goldUnit: 'g',
   projection: 2,
   cycles: 1,
   horizonYears: 10,
@@ -1119,7 +1128,6 @@ async function fetchGoldPrice(btn) {
 
     if (!eurPerGram || eurPerGram <= 0) throw new Error('Ungültiger Preis');
     S.goldPerGram = eurPerGram;
-    document.getElementById('goldPriceInput').value = eurPerGram.toFixed(2);
     updateGoldDisplay(); render();
 
   } catch(e) {
@@ -1133,7 +1141,25 @@ async function fetchGoldPrice(btn) {
   }
 }
 
-function onGoldPrice(v){ S.goldPerGram=parseFloat(v)||92.5; updateGoldDisplay(); render(); }
+const UNIT_FACTOR = { g: 1, oz: 31.1035, kg: 1000 };
+const UNIT_STEP   = { g: 0.01, oz: 0.5, kg: 5 };
+
+function setGoldUnit(u) {
+  S.goldUnit = u;
+  document.querySelectorAll('.unit-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === u));
+  const lbl = u === 'g' ? '€/g' : u === 'oz' ? '€/oz' : '€/kg';
+  const sl = document.getElementById('goldUnitLabel'); if (sl) sl.textContent = ' ' + lbl;
+  const tb = document.getElementById('tbGoldUnit');    if (tb) tb.textContent = lbl;
+  const inp = document.getElementById('goldPriceInput');
+  if (inp) inp.step = UNIT_STEP[u];
+  updateGoldDisplay();
+}
+
+function onGoldPrice(v) {
+  const factor = UNIT_FACTOR[S.goldUnit] || 1;
+  S.goldPerGram = (parseFloat(v) || 125) / factor;
+  updateGoldDisplay(); render();
+}
 function onProjection(v){ S.projection=parseFloat(v); document.getElementById('valProjection').textContent=parseFloat(v).toFixed(1)+' %'; render(); }
 function onCycles(v){ S.cycles=parseInt(v); document.getElementById('valCycles').textContent=`${v} (${parseInt(v)*36} Mo.)`; populateSelects(); render(); }
 function onHorizon(v){
@@ -1143,11 +1169,17 @@ function onHorizon(v){
   render();
 }
 function updateGoldDisplay(){
-  document.getElementById('goldPriceDisplay').textContent=EUR(S.goldPerGram).replace(' €','');
+  const factor = UNIT_FACTOR[S.goldUnit] || 1;
+  const priceInUnit = S.goldPerGram * factor;
+  const decimals = S.goldUnit === 'kg' ? 0 : 2;
+  const formatted = priceInUnit.toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  document.getElementById('goldPriceDisplay').textContent = formatted;
+  const inp = document.getElementById('goldPriceInput');
+  if (inp) inp.value = priceInUnit.toFixed(decimals);
   const tbEl = document.getElementById('tbGoldPrice');
   const dot  = document.getElementById('liveDot');
   const time = document.getElementById('tbGoldTime');
-  if (tbEl) tbEl.textContent = EUR(S.goldPerGram).replace(' €','');
+  if (tbEl) tbEl.textContent = formatted;
   if (dot)  dot.style.opacity = '1';
   if (time) {
     const now = new Date();
