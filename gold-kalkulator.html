@@ -52,6 +52,24 @@
 [data-theme="light"] [data-tip]:hover::after{background:rgba(240,238,234,.98);border-color:rgba(200,169,81,.3);color:var(--text)}
 [data-theme="light"] .kpi-label[data-tip]{border-bottom-color:rgba(200,169,81,.4)}
 [data-theme="light"] .cycle-badge{background:rgba(200,169,81,.15);color:#8B6914}
+[data-theme="light"] .sidebar{
+  background:
+    linear-gradient(180deg,rgba(248,244,236,.55) 0%,rgba(248,244,236,.35) 40%,rgba(248,244,236,.62) 100%),
+    image-set(
+      url('images/hintergrund_Menu_hell.webp') type('image/webp'),
+      url('images/hintergrund_Menu_hell.png') type('image/png')
+    ) center/cover no-repeat
+}
+[data-theme="light"] .sidebar-logo{background:linear-gradient(180deg,rgba(248,244,236,.4) 0%,transparent 100%)}
+[data-theme="light"] .nav-item{color:#4A3810}
+[data-theme="light"] .nav-item:hover{background:rgba(200,169,81,.15)}
+[data-theme="light"] .nav-item.active{background:rgba(200,169,81,.22);color:#6B4E10}
+[data-theme="light"] .logo-wordmark{color:#6B4E10}
+[data-theme="light"] .logo-tagline{color:#8B6914}
+[data-theme="light"] .sidebar-gold-lbl{color:#8B6914}
+[data-theme="light"] .sidebar-gold-price{color:#5A3A06}
+[data-theme="light"] .unit-btn{color:#6B4E10 !important;border-color:rgba(139,105,20,.3) !important}
+[data-theme="light"] .unit-btn.active{background:rgba(200,169,81,.25) !important;color:#5A3A06 !important}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -78,7 +96,7 @@ body{
 .sidebar{
   width:var(--sidebar-w);border-right:1px solid rgba(200,169,81,.15);
   display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;
-  z-index:200;overflow:hidden;
+  z-index:200;overflow:hidden;transition:transform .25s ease,width .25s ease;
   background:
     linear-gradient(180deg,rgba(6,6,10,.62) 0%,rgba(6,6,10,.42) 40%,rgba(6,6,10,.68) 100%),
     image-set(
@@ -163,7 +181,7 @@ body{
 .unit-btn.active{background:rgba(200,169,81,.18)!important;border-color:rgba(200,169,81,.45)!important;color:var(--gold)!important;font-weight:600!important}
 
 /* ── MAIN ── */
-.main-area{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.main-area{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin-left .25s ease}
 .top-bar{
   background:rgba(6,6,10,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);padding:12px 28px;
@@ -412,6 +430,8 @@ tr.cycle-start td{border-top:2px solid rgba(200,169,81,.32)}
   .nav-item{padding:9px 13px;gap:0;justify-content:center;flex:1;min-width:44px}
   .main-area{margin-left:0}
 }
+#app.sidebar-hidden .sidebar{transform:translateX(-100%);pointer-events:none}
+#app.sidebar-hidden .main-area{margin-left:0}
 @media print{body{background:#fff!important;color:#000!important}.no-print{display:none!important}}
 
 /* ── TOOLTIPS ── */
@@ -535,6 +555,10 @@ body{font-size:15px}
 <div class="main-area">
 
 <header class="top-bar no-print">
+  <button class="btn btn-outline btn-sm" id="btnSidebarToggle" onclick="toggleSidebar()" title="Menü ein-/ausblenden" style="flex-shrink:0;padding:7px 10px">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="tb-divider"></div>
   <div>
     <div class="tb-label">Goldpreissteigerung / Jahr</div>
     <div class="tb-row">
@@ -556,6 +580,14 @@ body{font-size:15px}
     <div class="tb-row">
       <input type="range" id="sliderHorizon" min="3" max="35" step="1" value="10" oninput="onHorizon(this.value)">
       <span class="slider-val" id="valHorizon">bis 2036</span>
+    </div>
+  </div>
+  <div class="tb-divider"></div>
+  <div>
+    <div class="tb-label">Ansichtsgröße</div>
+    <div class="tb-row">
+      <input type="range" id="sliderScale" min="0.8" max="1.4" step="0.05" value="1" oninput="setUIScale(this.value)">
+      <span class="slider-val" id="valScale">100 %</span>
     </div>
   </div>
   <div class="tb-divider"></div>
@@ -828,12 +860,17 @@ body{font-size:15px}
     <div class="form-row" style="margin-bottom:10px">
       <div class="row-flex">
         <input type="checkbox" id="g_useOne" checked style="width:auto;accent-color:var(--gold)">
-        <label for="g_useOne" style="color:var(--text)">Einmaleinlage:</label>
+        <label for="g_useOne" style="color:var(--text)">Einmaleinlage (EUR):</label>
         <input type="number" id="g_oneAmt" placeholder="5 000" min="0" step="100" style="width:120px">
         <span class="pos-meta">EUR</span>
-        <span class="pos-meta" style="margin:0 4px">oder</span>
-        <input type="number" id="g_goldGrams" placeholder="0" min="0" step="0.1" style="width:90px" oninput="updateGoalGoldEur()">
-        <span class="pos-meta">g Gold</span>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="row-flex">
+        <input type="checkbox" id="g_useGold" style="width:auto;accent-color:var(--gold)">
+        <label for="g_useGold" style="color:var(--text)">⬡ Phys. Gold:</label>
+        <input type="number" id="g_goldGrams" placeholder="50" min="0" step="0.1" style="width:110px" oninput="updateGoalGoldEur()">
+        <span class="pos-meta">g</span>
         <span id="g_goldEurDisplay" class="pos-meta" style="color:var(--gold)"></span>
       </div>
     </div>
@@ -1268,6 +1305,8 @@ function updateGoalGoldEur() {
   const g = parseFloat(document.getElementById('g_goldGrams').value) || 0;
   const el = document.getElementById('g_goldEurDisplay');
   if (el) el.textContent = g > 0 ? `= ${EUR(g * S.goldPerGram)}` : '';
+  const cb = document.getElementById('g_useGold');
+  if (cb && g > 0 && !cb.checked) cb.checked = true;
 }
 function updateCompBGoldEur() {
   const g = parseFloat(document.getElementById('compB-gold').value) || 0;
@@ -1979,10 +2018,11 @@ function runGoal() {
   const useAff  = document.getElementById('g_useAff').checked;
   const withRi  = document.getElementById('g_reinvest').checked;
 
+  const useGold    = document.getElementById('g_useGold').checked;
   const oneAmtEUR  = parseFloat(document.getElementById('g_oneAmt').value)||0;
   const goldGrams  = parseFloat(document.getElementById('g_goldGrams').value)||0;
-  const goldAsEUR  = goldGrams > 0 ? Math.round(goldGrams * S.goldPerGram * 100) / 100 : 0;
-  const oneAmt     = oneAmtEUR + goldAsEUR;
+  const goldAsEUR  = useGold && goldGrams > 0 ? Math.round(goldGrams * S.goldPerGram * 100) / 100 : 0;
+  const oneAmt     = (useOne ? oneAmtEUR : 0) + goldAsEUR;
   const planAmt  = parseFloat(document.getElementById('g_planAmt').value)||0;
   const affCount = parseInt(document.getElementById('g_affCount').value)||0;
   const affAmt   = parseFloat(document.getElementById('g_affAmt').value)||0;
@@ -2002,7 +2042,7 @@ function runGoal() {
     return d[Math.min(horizon, d.length-1)];
   }
 
-  const cur = sim(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
+  const cur = sim(oneAmt, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
   const curVal = getVal(cur);
 
   function firstMonth(one, plan, affCnt, affA, ri) {
@@ -2022,14 +2062,14 @@ function runGoal() {
     return hi;
   }
 
-  const curReach     = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
-  const curReachNoRi = firstMonth(useOne?oneAmt:0, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, false);
+  const curReach     = firstMonth(oneAmt, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, withRi);
+  const curReachNoRi = firstMonth(oneAmt, usePlan?planAmt:0, useAff?affCount:0, useAff?affAmt:0, false);
 
-  const needOne  = bsearch(v => getVal(sim(v, 0, 0, 0, withRi)));
-  const needPlan = bsearch(v => getVal(sim(0, v, 0, 0, withRi)));
+  const needOne  = bsearch(v => getVal(sim(v + goldAsEUR, 0, 0, 0, withRi)));
+  const needPlan = bsearch(v => getVal(sim(goldAsEUR, v, 0, 0, withRi)));
 
   function simAffCap(totalCap, ri) {
-    const invs = useOne && oneAmt>0 ? [{ id:0, startMonth:0, principalEUR:oneAmt }] : [];
+    const invs = oneAmt>0 ? [{ id:0, startMonth:0, principalEUR:oneAmt }] : [];
     const pl   = usePlan && planAmt>0 ? { active:true, amount:planAmt, start:0, duration:-1 } : { active:false, amount:0, start:0, duration:-1 };
     const affs = totalCap>0 ? [{ id:99, name:'A',
       investments:[{ id:0, startMonth:0, principalEUR:totalCap }], plan:{active:false} }] : [];
@@ -2237,6 +2277,23 @@ function render() {
 }
 
 // ─── INIT ────────────────────────────────────────────────────
+/* ── SIDEBAR TOGGLE ── */
+function toggleSidebar() {
+  document.getElementById('app').classList.toggle('sidebar-hidden');
+  localStorage.setItem('sidebarHidden', document.getElementById('app').classList.contains('sidebar-hidden'));
+}
+
+/* ── UI SCALE ── */
+function setUIScale(v) {
+  const pct = Math.round(v * 100);
+  document.documentElement.style.zoom = v;
+  const el = document.getElementById('valScale');
+  if (el) el.textContent = pct + ' %';
+  const sl = document.getElementById('sliderScale');
+  if (sl) sl.value = v;
+  localStorage.setItem('uiScale', v);
+}
+
 /* ── LIGHT / DARK MODE ── */
 function toggleTheme() {
   const isLight = document.documentElement.dataset.theme === 'light';
@@ -2266,6 +2323,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   const initYr = new Date().getFullYear() + S.horizonYears;
   document.getElementById('valHorizon').textContent = `bis ${initYr}`;
   updateGoldDisplay(); populateSelects();
+
+  // Sidebar-Zustand wiederherstellen
+  if (localStorage.getItem('sidebarHidden') === 'true')
+    document.getElementById('app').classList.add('sidebar-hidden');
+
+  // UI-Scale wiederherstellen
+  const savedScale = parseFloat(localStorage.getItem('uiScale')) || 1;
+  setUIScale(savedScale);
 
   // Auto-Fetch nur auf gehosteter Seite (GitHub Pages / HTTP)
   if (location.protocol !== 'file:') {
