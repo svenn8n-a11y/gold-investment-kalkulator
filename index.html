@@ -17,6 +17,42 @@
   --green:#3DB870;--red:#E05252;--blue:#5B9CF6;--purple:#A78BFA;
   --radius:12px;--sidebar-w:240px
 }
+/* ── LIGHT MODE ── */
+[data-theme="light"]{
+  --bg:#F2F0EC;--surface:#E8E6E2;
+  --card:rgba(255,255,255,.96);--card2:rgba(248,246,242,.98);
+  --border:rgba(200,169,81,.18);--border2:rgba(0,0,0,.09);
+  --text:#1C1A16;--muted:#6B6860;--muted2:#9A9896
+}
+[data-theme="light"] .top-bar{
+  background:rgba(242,240,236,.94);border-bottom-color:rgba(200,169,81,.18)
+}
+[data-theme="light"] input[type=number],
+[data-theme="light"] input[type=text],
+[data-theme="light"] select{background:rgba(0,0,0,.05);color:var(--text)}
+[data-theme="light"] td{border-bottom-color:rgba(0,0,0,.05)}
+[data-theme="light"] tr.hl td{background:rgba(200,169,81,.1)}
+[data-theme="light"] tr.cycle-start td{border-top-color:rgba(200,169,81,.4)}
+[data-theme="light"] .tog-sl{background:rgba(0,0,0,.1)}
+[data-theme="light"] .goal-scenario{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08)}
+[data-theme="light"] .goal-scenario:hover{border-color:rgba(200,169,81,.3)}
+[data-theme="light"] .pos-item{background:rgba(0,0,0,.04)}
+[data-theme="light"] .comp-scenario{background:rgba(0,0,0,.04)}
+[data-theme="light"] .comp-scenario-a{border-color:rgba(200,169,81,.35)}
+[data-theme="light"] .comp-scenario-b{border-color:rgba(91,156,246,.3)}
+[data-theme="light"] .info{background:rgba(200,169,81,.1);border-color:rgba(200,169,81,.25)}
+[data-theme="light"] .info-green{background:rgba(61,184,112,.1);border-color:rgba(61,184,112,.25)}
+[data-theme="light"] .info-red{background:rgba(224,82,82,.1);border-color:rgba(224,82,82,.25)}
+[data-theme="light"] .info-blue{background:rgba(91,156,246,.1);border-color:rgba(91,156,246,.25)}
+[data-theme="light"] .btn-outline{border-color:rgba(200,169,81,.35);color:#8B6914}
+[data-theme="light"] .btn-blue{background:rgba(91,156,246,.1)}
+[data-theme="light"] .btn-green{background:rgba(61,184,112,.1)}
+[data-theme="light"] .btn-red{background:rgba(224,82,82,.1)}
+[data-theme="light"] .chart-expand-btn{border-color:rgba(0,0,0,.12);color:var(--muted)}
+[data-theme="light"] [data-tip]:hover::after{background:rgba(240,238,234,.98);border-color:rgba(200,169,81,.3);color:var(--text)}
+[data-theme="light"] .kpi-label[data-tip]{border-bottom-color:rgba(200,169,81,.4)}
+[data-theme="light"] .cycle-badge{background:rgba(200,169,81,.15);color:#8B6914}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 /* ── CUSTOM GOLD CURSOR ── */
@@ -509,7 +545,11 @@ body{font-size:15px}
       <span class="slider-val" id="valHorizon">bis 2036</span>
     </div>
   </div>
-  <div style="margin-left:auto;flex-shrink:0">
+  <div style="margin-left:auto;display:flex;gap:8px;flex-shrink:0;align-items:center">
+    <button class="btn btn-outline btn-sm" id="themeToggle" onclick="toggleTheme()" title="Hell-/Dunkel-Modus wechseln">
+      <svg id="themeIcon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <span id="themeLabel">Hell</span>
+    </button>
     <button class="btn btn-outline btn-sm" onclick="togglePres()" title="Präsentationsmodus (ESC zum Beenden)">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
       Präsentation
@@ -1423,16 +1463,20 @@ function updateCharts(data, totalMo) {
 
   // Farb-Palette: klar unterscheidbar
   const CLR = { payout:'#C8A951', bonus:'#9B72E8', aff:'#5B9CF6', gold2:'#A8D8A8', reinvest:'#3DB870' };
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const TICK = isLight ? '#5A5856' : '#7C7670';
+  const GRID = isLight ? 'rgba(0,0,0,.07)' : 'rgba(255,255,255,.04)';
+  const LEG  = isLight ? '#5A5856' : '#7C7670';
 
   const baseOpts = {
     responsive:true, maintainAspectRatio:true,
     plugins:{
-      legend:{ labels:{ color:'#7C7670', font:{size:11}, boxWidth:12 }},
+      legend:{ labels:{ color:LEG, font:{size:11}, boxWidth:12 }},
       tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.parsed?.y??ctx.parsed; return typeof v==='number'?` ${EUR(v)}`:` ${v}`; }}}
     },
     scales:{
-      x:{ ticks:{ color:'#7C7670', maxRotation:45, minRotation:30, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
-      y:{ ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}}
+      x:{ ticks:{ color:TICK, maxRotation:45, minRotation:30, font:{size:10}}, grid:{ color:GRID}},
+      y:{ ticks:{ color:TICK, callback:v=>EUR(v), font:{size:10}}, grid:{ color:GRID}}
     }
   };
 
@@ -1449,9 +1493,9 @@ function updateCharts(data, totalMo) {
   ]}, baseOpts);
 
   const goldOpts={...baseOpts, scales:{
-    x:{ ticks:{ color:'#7C7670', maxRotation:45, minRotation:30, font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
-    y:{ position:'left',  ticks:{ color:'#7C7670', callback:v=>v.toFixed(1)+' g', font:{size:10}}, grid:{ color:'rgba(255,255,255,.04)'}},
-    y2:{ position:'right', ticks:{ color:'#7C7670', callback:v=>EUR(v), font:{size:10}}, grid:{ drawOnChartArea:false }}
+    x:{ ticks:{ color:TICK, maxRotation:45, minRotation:30, font:{size:10}}, grid:{ color:GRID}},
+    y:{ position:'left',  ticks:{ color:TICK, callback:v=>v.toFixed(1)+' g', font:{size:10}}, grid:{ color:GRID}},
+    y2:{ position:'right', ticks:{ color:TICK, callback:v=>EUR(v), font:{size:10}}, grid:{ drawOnChartArea:false }}
   }, plugins:{...baseOpts.plugins, tooltip:{ callbacks:{ label:ctx=>ctx.dataset.yAxisID==='y2'?` ${EUR(ctx.parsed.y)}`:` ${ctx.parsed.y.toFixed(3)} g`}}}};
 
   mkChart('cGold','line',{ labels, datasets:[
@@ -1805,9 +1849,11 @@ function runGoal() {
   const needPlan = bsearch(v => getVal(sim(0, v, 0, 0, withRi)));
 
   function simAffCap(totalCap, ri) {
+    const invs = useOne && oneAmt>0 ? [{ id:0, startMonth:0, principalEUR:oneAmt }] : [];
+    const pl   = usePlan && planAmt>0 ? { active:true, amount:planAmt, start:0, duration:-1 } : { active:false, amount:0, start:0, duration:-1 };
     const affs = totalCap>0 ? [{ id:99, name:'A',
       investments:[{ id:0, startMonth:0, principalEUR:totalCap }], plan:{active:false} }] : [];
-    const d = calculate({ investments:[], plan:{ active:false,amount:0,start:0,duration:-1 },
+    const d = calculate({ investments:invs, plan:pl,
       affiliates:affs, withdrawals:[], reinvest:ri, cycleReinvest:false,
       cycles: Math.ceil(horizon/36)+1, projection:S.projection, goldPerGram:S.goldPerGram });
     return getVal(d[Math.min(horizon, d.length-1)]);
@@ -1850,19 +1896,19 @@ function runGoal() {
         <div class="kpi-sub">pro Monat</div>
       </div>
       <div class="goal-scenario">
-        <h4>Nur Affiliates (à 1.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff1k} Klienten</div>
-        <div class="kpi-sub">je 1.000 € Einmalanlage (= ${EUR(needAff1k*1000)} Gesamtkapital)</div>
+        <h4>Affiliates zusätzlich (à 1.000 €)</h4>
+        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff1k>0?needAff1k+' Klienten':'✓ Ziel erreicht'}</div>
+        <div class="kpi-sub">${needAff1k>0?`je 1.000 € Einmalanlage (= ${EUR(needAff1k*1000)} zus. Kapital)`:'Deine Eigeninvestition reicht bereits aus'}</div>
       </div>
       <div class="goal-scenario">
-        <h4>Nur Affiliates (à 5.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff5k} Klienten</div>
-        <div class="kpi-sub">je 5.000 € Einmalanlage (= ${EUR(needAff5k*5000)} Gesamtkapital)</div>
+        <h4>Affiliates zusätzlich (à 5.000 €)</h4>
+        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff5k>0?needAff5k+' Klienten':'✓ Ziel erreicht'}</div>
+        <div class="kpi-sub">${needAff5k>0?`je 5.000 € Einmalanlage (= ${EUR(needAff5k*5000)} zus. Kapital)`:'Deine Eigeninvestition reicht bereits aus'}</div>
       </div>
       <div class="goal-scenario">
-        <h4>Nur Affiliates (à 10.000 €)</h4>
-        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff10k} Klienten</div>
-        <div class="kpi-sub">je 10.000 € Einmalanlage (= ${EUR(needAff10k*10000)} Gesamtkapital)</div>
+        <h4>Affiliates zusätzlich (à 10.000 €)</h4>
+        <div class="kpi-value c-green" style="font-size:24px;margin-bottom:4px">${needAff10k>0?needAff10k+' Klienten':'✓ Ziel erreicht'}</div>
+        <div class="kpi-sub">${needAff10k>0?`je 10.000 € Einmalanlage (= ${EUR(needAff10k*10000)} zus. Kapital)`:'Deine Eigeninvestition reicht bereits aus'}</div>
       </div>
     </div>
 
@@ -2006,10 +2052,35 @@ function render() {
 }
 
 // ─── INIT ────────────────────────────────────────────────────
+/* ── LIGHT / DARK MODE ── */
+function toggleTheme() {
+  const isLight = document.documentElement.dataset.theme === 'light';
+  applyTheme(isLight ? 'dark' : 'light');
+}
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme === 'light' ? 'light' : '';
+  const btn = document.getElementById('themeToggle');
+  const lbl = document.getElementById('themeLabel');
+  const ico = document.getElementById('themeIcon');
+  if (theme === 'light') {
+    lbl.textContent = 'Dunkel';
+    ico.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    ico.setAttribute('fill','currentColor'); ico.setAttribute('stroke','none');
+  } else {
+    lbl.textContent = 'Hell';
+    ico.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    ico.removeAttribute('fill'); ico.setAttribute('stroke','currentColor');
+  }
+  localStorage.setItem('theme', theme);
+  render();
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
+  const saved = localStorage.getItem('theme') || 'dark';
+  applyTheme(saved);
   const initYr = new Date().getFullYear() + S.horizonYears;
   document.getElementById('valHorizon').textContent = `bis ${initYr}`;
-  updateGoldDisplay(); populateSelects(); render();
+  updateGoldDisplay(); populateSelects();
 });
 </script>
 </body>
