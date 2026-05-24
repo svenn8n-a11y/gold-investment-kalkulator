@@ -2106,14 +2106,14 @@ function runGoal() {
     <div class="sect">Schnellwege – was brauchst du für ${EUR(goalAmt)} in ${horizon} Monaten?</div>
     <div class="goal-grid">
       <div class="goal-scenario">
-        <h4>Nur Einmaleinlage</h4>
+        <h4>${goldAsEUR>0?'Phys. Gold + Einmaleinlage':'Nur Einmaleinlage'}</h4>
         <div class="kpi-value c-gold" style="font-size:24px;margin-bottom:4px">${EUR(needOne)}</div>
-        <div class="kpi-sub">einmalig investieren</div>
+        <div class="kpi-sub">${goldAsEUR>0?`zusätzlich zu ${GR(goldGrams)} Gold (${EUR(goldAsEUR)})`:'einmalig investieren'}</div>
       </div>
       <div class="goal-scenario">
-        <h4>Nur Ratenzahlung</h4>
+        <h4>${goldAsEUR>0?'Ratenzahlung (+ Gold)':'Nur Ratenzahlung'}</h4>
         <div class="kpi-value c-blue" style="font-size:24px;margin-bottom:4px">${EUR(needPlan)}</div>
-        <div class="kpi-sub">pro Monat</div>
+        <div class="kpi-sub">${goldAsEUR>0?`pro Monat, zusätzlich zu ${GR(goldGrams)} Gold`:'pro Monat'}</div>
       </div>
       <div class="goal-scenario">
         <h4>Affiliates zusätzlich (à 1.000 €)</h4>
