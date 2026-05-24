@@ -172,6 +172,10 @@ body{
 input[type=range]{accent-color:var(--gold);width:110px}
 .slider-val{font-size:13.5px;font-weight:600;color:var(--gold);min-width:58px;font-variant-numeric:tabular-nums}
 .tb-divider{width:1px;height:32px;background:var(--border)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#3DB870;flex-shrink:0;animation:livePulse 2.4s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.8)}}
+.tb-gold-val{font-size:15px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.tb-gold-time{font-size:10px;color:var(--muted);margin-top:1px}
 
 /* ── PAGE ── */
 .page{max-width:1360px;margin:0 auto;padding:28px 32px}
@@ -544,6 +548,18 @@ body{font-size:15px}
       <input type="range" id="sliderHorizon" min="3" max="35" step="1" value="10" oninput="onHorizon(this.value)">
       <span class="slider-val" id="valHorizon">bis 2036</span>
     </div>
+  </div>
+  <div class="tb-divider"></div>
+  <div>
+    <div class="tb-label" style="display:flex;align-items:center;gap:5px">
+      <span class="live-dot" id="liveDot" style="opacity:.4"></span>
+      Gold · Echtzeit
+    </div>
+    <div class="tb-row" style="gap:6px">
+      <span class="tb-gold-val" id="tbGoldPrice">—</span>
+      <span style="font-size:12px;color:var(--muted);align-self:flex-end;padding-bottom:1px">€/g</span>
+    </div>
+    <div class="tb-gold-time" id="tbGoldTime"></div>
   </div>
   <div style="margin-left:auto;display:flex;gap:8px;flex-shrink:0;align-items:center">
     <button class="btn btn-outline btn-sm" id="themeToggle" onclick="toggleTheme()" title="Hell-/Dunkel-Modus wechseln">
@@ -1109,7 +1125,18 @@ function onHorizon(v){
   document.getElementById('valHorizon').textContent=`bis ${yr}`;
   render();
 }
-function updateGoldDisplay(){ document.getElementById('goldPriceDisplay').textContent=EUR(S.goldPerGram).replace(' €',''); }
+function updateGoldDisplay(){
+  document.getElementById('goldPriceDisplay').textContent=EUR(S.goldPerGram).replace(' €','');
+  const tbEl = document.getElementById('tbGoldPrice');
+  const dot  = document.getElementById('liveDot');
+  const time = document.getElementById('tbGoldTime');
+  if (tbEl) tbEl.textContent = EUR(S.goldPerGram).replace(' €','');
+  if (dot)  dot.style.opacity = '1';
+  if (time) {
+    const now = new Date();
+    time.textContent = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} Uhr`;
+  }
+}
 
 // ─── SELECTS ────────────────────────────────────────────────
 function populateSelects() {
@@ -2085,6 +2112,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   const initYr = new Date().getFullYear() + S.horizonYears;
   document.getElementById('valHorizon').textContent = `bis ${initYr}`;
   updateGoldDisplay(); populateSelects();
+
+  // Auto-Fetch nur auf gehosteter Seite (GitHub Pages / HTTP)
+  if (location.protocol !== 'file:') {
+    fetchGoldPrice(null);
+    setInterval(() => fetchGoldPrice(null), 5 * 60 * 1000);
+  }
 });
 </script>
 </body>
