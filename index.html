@@ -1331,11 +1331,15 @@ function renderDashboard(data) {
   const ownCap = S.investments.reduce((s,i)=>s+i.principalEUR,0)
     + (S.plan.active ? S.plan.amount * Math.min(planMonths, Math.max(0,totalMo-S.plan.start)) : 0);
 
+  const affTotalCapEarly = S.affiliates.reduce((s,a)=>s+a.investments.reduce((ss,i)=>ss+i.principalEUR,0),0);
+  const gesamtvolumen = ownCap + affTotalCapEarly;
+
   const totalROI  = ownCap>0 ? ((last.totalWealth/ownCap-1)*100).toFixed(1)+' %' : '—';
   const cashROIVal= ownCap>0 ? ((last.cumReceived/ownCap)*100).toFixed(1)+' %' : '—';
 
   document.getElementById('kpiGrid').innerHTML=`
     <div class="kpi"><div class="kpi-label" data-tip="Summe aller getätigten Einmalinvestitionen plus die bis Zyklusende gezahlten Sparplanraten.">Eigenes Kapital investiert</div><div class="kpi-value c-gold">${EUR(ownCap)}</div></div>
+    <div class="kpi" style="border-color:rgba(200,169,81,.28)"><div class="kpi-label" data-tip="Eigenes Kapital plus das gesamte Investitionsvolumen aller Affiliate-Klienten — das ist die Summe, die gegenüber dem Anbieter kommuniziert wird.">Kommuniziertes Gesamtvolumen</div><div class="kpi-value c-gold" style="font-size:20px">${EUR(gesamtvolumen)}</div><div class="kpi-sub">${EUR(ownCap)} eigen · ${EUR(affTotalCapEarly)} Klienten</div></div>
     <div class="kpi"><div class="kpi-label" data-tip="Kumulierte Barauszahlungen (2%/Monat × 36 + 30% Treuebonus) geteilt durch investiertes Kapital. Garantiert 102%, unabhängig vom Goldpreis.">Cash-ROI (Auszahlungen)</div><div class="kpi-value c-gold">${cashROIVal}</div>
       <div class="kpi-sub">36×2%+30% = 102 % garantiert</div></div>
     <div class="kpi"><div class="kpi-label" data-tip="Gesamtrendite inklusive des aktuellen Marktwerts des gelieferten physischen Golds, berechnet mit der eingestellten Goldpreissteigerung von ${S.projection}% p.a.">Gesamt-ROI inkl. Gold (${S.projection}%/Jahr)</div><div class="kpi-value c-green">${totalROI}</div>
