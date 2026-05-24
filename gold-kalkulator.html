@@ -931,7 +931,7 @@ const IC = {
 
 // ─── STATE ──────────────────────────────────────────────────
 const S = {
-  goldPerGram: 92.50,
+  goldPerGram: 125.00,
   projection: 2,
   cycles: 1,
   horizonYears: 10,
@@ -1077,27 +1077,44 @@ async function fetchGoldPrice(btn) {
   try {
     let eurPerGram = null;
 
-    // Versuch 1: Frankfurter XAU→EUR (explizit CORS-freundlich)
+    // Versuch 1: Coinbase XAU-EUR Spot (direkt, kein Umrechnen nötig)
     try {
-      const r = await fetch('https://api.frankfurter.app/latest?from=XAU&to=EUR');
+      const r = await fetch('https://api.coinbase.com/v2/prices/XAU-EUR/spot');
       if (r.ok) {
         const d = await r.json();
-        if (d.rates?.EUR > 0)
-          eurPerGram = Math.round(d.rates.EUR / 31.1035 * 100) / 100;
+        const eurOz = parseFloat(d.data?.amount);
+        if (eurOz > 0) eurPerGram = Math.round(eurOz / 31.1035 * 100) / 100;
       }
     } catch(_) { /* weiter zu Versuch 2 */ }
 
-    // Versuch 2: metals.live USD-Spot + USD→EUR-Kurs
+    // Versuch 2: Coinbase XAU-USD + open.er-api USD→EUR
+    if (!eurPerGram) {
+      try {
+        const rC = await fetch('https://api.coinbase.com/v2/prices/XAU-USD/spot');
+        if (!rC.ok) throw new Error();
+        const dc = await rC.json();
+        const usdOz = parseFloat(dc.data?.amount);
+        if (!(usdOz > 0)) throw new Error();
+        const rF = await fetch('https://open.er-api.com/v6/latest/USD');
+        if (!rF.ok) throw new Error();
+        const df = await rF.json();
+        const eurUsd = df.rates?.EUR;
+        if (!(eurUsd > 0)) throw new Error();
+        eurPerGram = Math.round(usdOz / 31.1035 * eurUsd * 100) / 100;
+      } catch(_) { /* weiter zu Versuch 3 */ }
+    }
+
+    // Versuch 3: metals.live USD-Spot + open.er-api USD→EUR
     if (!eurPerGram) {
       const rM = await fetch('https://api.metals.live/v1/spot/gold');
       if (!rM.ok) throw new Error(`metals.live HTTP ${rM.status}`);
-      const arr  = await rM.json();
+      const arr = await rM.json();
       const usdOz = arr?.[0]?.price ?? arr?.price;
-      if (!usdOz) throw new Error('Kein Preis in der Antwort');
-      const rF = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
-      if (!rF.ok) throw new Error(`frankfurter HTTP ${rF.status}`);
-      const fxd = await rF.json();
-      eurPerGram = Math.round(usdOz / 31.1035 * fxd.rates.EUR * 100) / 100;
+      if (!usdOz) throw new Error('Kein Preis');
+      const rF = await fetch('https://open.er-api.com/v6/latest/USD');
+      if (!rF.ok) throw new Error();
+      const df = await rF.json();
+      eurPerGram = Math.round(usdOz / 31.1035 * df.rates.EUR * 100) / 100;
     }
 
     if (!eurPerGram || eurPerGram <= 0) throw new Error('Ungültiger Preis');
